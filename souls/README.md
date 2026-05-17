@@ -54,10 +54,15 @@ The frontmatter is validated against `schema/soul.schema.json`. The sections und
 
 ## Validation
 
+A soul's frontmatter is validated against `schema/soul.schema.json` with `souls/validate.mjs`. From the repo root:
+
 ```bash
-# Coming in v2: soulforge soul validate <path>
-# v1: validate the frontmatter against the JSON Schema manually
+npm install                                       # one-time
+npm run validate-souls                            # validates every souls/examples/*.md
+node souls/validate.mjs path/to/your-soul.md      # validate a specific file
 ```
+
+The validator exits non-zero on the first soul that fails, with a per-error path and reason. Both bundled examples pass.
 
 ## Optional frontmatter fields
 

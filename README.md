@@ -50,7 +50,7 @@ The five primitive folders are mirrored on the same level intentionally — none
 
 | Module            | Status                                                                  |
 | ----------------- | ----------------------------------------------------------------------- |
-| `souls/`          | JSON schema + one runnable example soul                                 |
+| `souls/`          | JSON schema, two example souls, and a `validate-souls` CLI               |
 | `endpoints/`      | `x402-endpoint` template + working URL-inspector demo deployed on Vercel |
 | `docs/`           | Architecture write-up                                                   |
 | `memory/`         | README only — directional, marked as v2 work                            |
