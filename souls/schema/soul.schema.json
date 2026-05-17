@@ -43,6 +43,11 @@
       "description": "Free-form tags for grouping souls in a registry.",
       "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
       "maxItems": 16
+    },
+    "planning": {
+      "type": "string",
+      "description": "Reasoning posture before tool calls. 'scratchpad' means the agent writes an explicit goal→steps→fallback plan before invoking any tool. Omit for agents that act immediately.",
+      "enum": ["scratchpad", "none"]
     }
   }
 }

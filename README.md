@@ -38,7 +38,8 @@ soulforge/
 ├── endpoints/                ← endpoint templates + working demos
 ├── memory/                   ← memory primitives (v1: README + stubs)
 ├── eval/                     ← eval harness (v1: README + stubs)
-└── observability/            ← tracing + cost tracking (v1: README + stubs)
+├── observability/            ← tracing + cost tracking (v1: README + stubs)
+└── research/                 ← notes from studying external frameworks and papers
 ```
 
 The five primitive folders are mirrored on the same level intentionally — none of them is "the main thing." They are peers.

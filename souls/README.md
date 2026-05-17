@@ -59,9 +59,21 @@ The frontmatter is validated against `schema/soul.schema.json`. The sections und
 # v1: validate the frontmatter against the JSON Schema manually
 ```
 
-## Example
+## Optional frontmatter fields
 
-See `examples/starter-soul.md` for a complete, runnable soul.
+Beyond the required fields, souls can declare behavioral hints in frontmatter that tooling and orchestrators can act on:
+
+| Field | Values | Meaning |
+|-------|--------|---------|
+| `planning` | `scratchpad` \| `none` | Whether this agent writes an explicit plan before tool calls. `scratchpad` agents reason goal → sub-steps → fallback before any tool invocation. See `examples/tool-planner-soul.md`. |
+| `tags` | list of strings | Free-form labels for soul registry/search. |
+
+## Examples
+
+| File | Pattern | When to copy it |
+|------|---------|-----------------|
+| `examples/starter-soul.md` | Minimal reference soul | Starting point for any new soul |
+| `examples/tool-planner-soul.md` | GOAP planning posture | Agent that calls multiple tools in a single turn and must be traceable |
 
 ## What's not here yet (v2)
 
