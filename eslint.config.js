@@ -5,7 +5,13 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   {
-    files: ["memory/**/*.ts", "endpoints/examples/url-inspector-with-memory/**/*.ts"],
+    files: [
+      "memory/**/*.ts",
+      "eval/**/*.ts",
+      "observability/**/*.ts",
+      "tools/**/*.ts",
+      "endpoints/examples/url-inspector-with-memory/**/*.ts"
+    ],
     languageOptions: {
       parserOptions: {
         project: "./tsconfig.json",

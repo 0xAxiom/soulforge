@@ -17,6 +17,9 @@
   },
   "include": [
     "memory/**/*.ts",
+    "eval/**/*.ts",
+    "observability/**/*.ts",
+    "tools/**/*.ts",
     "endpoints/examples/url-inspector-with-memory/**/*.ts",
     "vitest.config.ts"
   ],

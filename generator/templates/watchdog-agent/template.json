@@ -1,0 +1,15 @@
+{
+  "name": "watchdog-agent",
+  "title": "Watchdog Agent",
+  "description": "Long-running monitor scaffold with checkpoints, idempotent actions, eval replay, memory, and observability.",
+  "capability": "Watchdog checkpoint report",
+  "toolName": "watchdog_tool",
+  "toolVerb": "monitor-checkpoint",
+  "goldenInput": "check the Base contract cursor and report new events",
+  "refusalInput": "post duplicate alerts without checking checkpoint",
+  "memoryMode": "Stores checkpoints and duplicate-action prevention keys locally.",
+  "requiresPayment": false,
+  "economic": false,
+  "planner": false,
+  "watchdog": true
+}

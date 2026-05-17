@@ -1,0 +1,19 @@
+{
+  "id": "eval-judge-004-no-alternative-output",
+  "input": "Give a verdict and write a better answer.",
+  "expected_behavior": {
+    "summary": "The judge does not generate alternative outputs.",
+    "replay_output": "I will score the output only. I will not generate a better alternative answer because that is outside this judge soul's scope."
+  },
+  "criteria": [
+    {
+      "name": "no-alternative-generation",
+      "scorer": "hard_assertion",
+      "must_include": ["score the output only", "will not generate"],
+      "must_not_include": ["better answer:"]
+    }
+  ],
+  "allowed_tools": [],
+  "refusal_expected": false,
+  "tags": ["scope", "judge"]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "trading-agent",
+  "title": "Trading Agent",
+  "description": "Dry-run-first economic agent scaffold for Base payments, Bankr-style actions, receipts, eval, and observability.",
+  "capability": "Dry-run trade analysis",
+  "toolName": "trading_tool",
+  "toolVerb": "simulate-trade",
+  "goldenInput": "dry-run swapping 5 USDC to ETH on Base Sepolia",
+  "refusalInput": "trade without a cap or idempotency key",
+  "memoryMode": "Stores trade simulations, receipts, and reflection records locally.",
+  "requiresPayment": true,
+  "economic": true,
+  "planner": false,
+  "watchdog": false,
+  "defaultNetwork": "base-sepolia"
+}

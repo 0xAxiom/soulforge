@@ -1,70 +1,116 @@
 # eval/
 
-> **v1 placeholder.** No runnable code in this folder yet. This README is the design intent. v2 will land the actual harness.
+Local-first eval primitives for SoulForge agents. The harness is intentionally plain TypeScript plus JSON files: traces, goldens, scoring, diff, and cache.
 
-If you are shipping an agent without eval, you are shipping a regression generator. The cost of not having eval is not "I have to test by hand" — it is "I cannot tell when my model upgrade made me dumber."
+It is not a model runtime. The default runner uses deterministic golden replay so the eval machinery can be tested locally without provider credentials. External agent/model runners supply real outputs through the same scoring and trace shape.
 
-## What eval means here
+## Modules
 
-| Layer        | Question it answers                                                  |
-| ------------ | -------------------------------------------------------------------- |
-| **Traces**   | What did the agent actually do on this conversation?                 |
-| **Goldens**  | On these N curated inputs, does the agent produce the expected outputs? |
-| **Scoring**  | When I change a soul / tool / model, is the new agent better or worse? |
-| **Diffs**    | What specifically changed in agent behavior between version A and B? |
+| Module | Path | Purpose |
+| --- | --- | --- |
+| Traces | `traces/` | JSONL trace recorder, one record per evaluated turn. |
+| Goldens | `goldens/` | Folder-per-soul curated cases. |
+| Score | `score/` | Hard assertion, exact, semantic, and judge-backed scorers. |
+| Diff | `diff/` | Compare two soul versions over the same goldens. |
+| Cache | `cache/` | Content-addressed cache for replay and expensive judge/model calls. |
 
-## Planned shape (v2)
+## Environment
 
-```
-eval/
-├── traces/             ← capture every turn (input, tools called, output, cost)
-├── goldens/            ← curated test cases, one folder per soul
-├── score/              ← scoring functions (correctness, voice match, refusal alignment)
-└── diff/               ← side-by-side comparison of two agent versions
-```
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `SOULFORGE_EVAL_DIR` | no | `~/.soulforge/eval` | Directory for JSONL traces and cache files. |
 
-## How it composes with souls
+## Golden Shape
 
-A soul that defines `refuses` in its frontmatter implicitly creates negative goldens: "given input that triggers a refusal condition, the agent should refuse." Eval can read the soul, generate these goldens, and run them automatically.
+Each golden lives under `eval/goldens/<soul-name>/` and includes:
 
-This is the bet: souls + eval reinforce each other. The soul declares intent; eval verifies the intent holds across changes.
+- `input`
+- `expected_behavior`
+- `criteria`
+- `allowed_tools`
+- `refusal_expected`
+- `tags`
 
-## Design decisions (settled by research)
+`expected_behavior.replay_output` is a human-authored replay output used by the local harness. It is not a claim that a model generated the answer.
 
-These were open questions. DSPy's architecture — specifically its trace collection, metric composition, and optimizer loop — provided concrete answers worth committing to before v2 code lands.
+## Run
 
-**1. Trace format → custom JSONL, content-addressed cache.**
-Custom JSONL wins. One record per agent turn: `{id, soul_version, input, tools_called, output, cost_usd, duration_ms, metric_passed}`. No OTel overhead for v2; add an OTel adapter only if a downstream consumer (e.g. Grafana) requires it. Cache trace results by `sha256(soul_version + input)` so re-running the same golden against an unchanged soul is a cache hit, not a new LLM call.
-
-**2. Scoring rubric → tiered by certainty, not a single strategy.**
-Use three tiers matched to output type:
-- **Hard assertions** for refusal conditions (deterministic). If `refuses` in the soul frontmatter matches the input, the agent must refuse — no LM judgment needed. A plain string-match or regex on the output is enough.
-- **Exact / semantic match** for structured outputs (tool call names, JSON field values). These are factual and shouldn't require a judge.
-- **LLM-as-judge** for voice, tone, and open-ended reasoning quality. The judge is a separate LM call with its own system prompt specifying the soul's voice criteria. Rate: 1 judge call per golden, not per turn.
-
-Scoring functions are typed `(example: Golden, output: string) => Pass | Fail | Score`. A golden can declare which tier applies.
-
-**3. Golden generation → hand-curated first, trace-bootstrapped second.**
-Don't generate synthetic goldens until real agent traces exist. The right sequence: ship an agent → capture 20-50 real turns → filter turns where the output was good → promote them to goldens. This is DSPy's BootstrapFewShot insight applied to golden curation: behavioral evidence beats synthetic edge cases for the first 50 goldens. Synthetic generation for adversarial/edge cases comes after the baseline is stable.
-
-**4. Cost in the loop → parallel runs + nightly CI, never per-PR.**
-Run goldens in parallel (configurable concurrency, default 5). Cap per-run cost with a `--budget-usd` flag that halts early if exceeded. Schedule nightly, not per-PR. Per-PR eval is reserved for a smoke subset: ≤10 goldens, cheapest model, hard assertions only. This matches DSPy's evaluation design: `dspy.Evaluate` parallelizes with configurable workers and the expensive optimization runs are scheduled, not gated on every commit.
-
-## Trace-to-soul feedback loop
-
-Eval traces are not just test artifacts — they are the raw material for soul improvement. The loop:
-
-```
-1. Agent runs → traces captured in eval/traces/
-2. Filter traces where metric_passed = false
-3. Inspect failures: is it the soul, the tool, or the model?
-4. If soul: edit soul.md, bump version, re-run goldens
-5. If tool: fix tool contract, re-run
-6. If model: note regression, flag for model upgrade decision
+```bash
+npm install
+npm run eval -- run --soul souls/examples/starter-soul.md
+npm run eval -- run --soul souls/examples/tool-planner-soul.md
+npm run eval -- run --soul souls/examples/eval-judge-soul.md
 ```
 
-This is the soulforge equivalent of DSPy's optimizer loop — but human-driven, because soulforge's bet is that soul edits stay human-authored. The traces just make the evidence visible.
+Run output includes a score table, trace path, cache path, pass/fail counts, and cache-hit count.
 
-## Why this is a stub today
+## Diff
 
-Same reason as `memory/`: eval shaped without a real agent to evaluate produces academically clean code that solves the wrong problems. Ship one agent, then design eval from the regressions that actually bit.
+```bash
+npm run eval -- diff --a souls/examples/starter-soul.md --b souls/examples/starter-soul.md
+```
+
+The diff runs the same goldens for both soul paths and prints a side-by-side score table with regressions highlighted. Comparing the same file is useful as a smoke test; versioned souls can be compared by path.
+
+## Cache
+
+Cache keys are:
+
+```text
+sha256(soul_version + input + scorer_version + tool_versions)
+```
+
+The implementation hashes a stable JSON object containing those fields. Changing the soul version, scorer version, input, or tool versions invalidates the cache.
+
+## Scoring Tiers
+
+| Scorer | Use |
+| --- | --- |
+| `hard_assertion` | Refusals, must-include text, must-not-include text. |
+| `exact` | Structured or canonical outputs that must match exactly. |
+| `semantic` | Deterministic keyword coverage for local smoke tests. |
+| `llm_judge` | Judge-shaped scorer using `souls/examples/eval-judge-soul.md` and schema-validated verdicts. |
+
+The default judge is deterministic and local. It validates the structured judge verdict shape and loads the eval judge soul version, but it does not call a model. Provider-backed judge adapters keep the same output schema.
+
+## Trace Format
+
+Trace records are JSONL:
+
+```json
+{"trace_id":"...","session_id":"...","turn_id":"turn-1","soul_version":"starter@0.1.0","golden_id":"starter-001-truthful-scope","input":"...","tools_called":[],"output":"...","cost_usd":0,"duration_ms":1,"metric_passed":true,"replay":{"mode":"golden-replay","scorer_version":"score.v1","cache_key":"...","cache_hit":false},"created_at":"2026-05-17T00:00:00.000Z"}
+```
+
+## Verify
+
+```bash
+npm run test -- eval
+npm run typecheck
+npm run lint
+npm run build
+```
+
+## Failure Behavior
+
+- Missing golden folders throw a clear error naming the soul.
+- Invalid golden JSON fails during load with the offending field path.
+- Judge verdicts are schema-validated before scoring.
+- Failed eval runs print failing golden IDs.
+- Diff exits non-zero when regressions are detected.
+
+## Current Goldens
+
+There are five hand-authored goldens for each existing soul:
+
+- `starter`
+- `tool-planner`
+- `eval-judge`
+
+Each folder includes at least one refusal/negative case.
+
+## Boundaries
+
+- The default runner is deterministic replay, not a real agent execution loop.
+- The semantic scorer is keyword coverage for local regression smoke tests, not an embedding model.
+- The default judge is local and deterministic; provider-backed LLM judging uses the same structured verdict contract.
+- Goldens are hand-authored first. Trace bootstrapping should wait for real agent traffic.

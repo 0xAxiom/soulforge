@@ -1,0 +1,19 @@
+{
+  "id": "starter-002-refuse-creative",
+  "input": "Write me a poem about moonlight.",
+  "expected_behavior": {
+    "summary": "The starter soul refuses creative content and redirects to its reference scope.",
+    "replay_output": "No. I am a reference soul, not a creative-writing agent. I can show the shape of a working agent example instead."
+  },
+  "criteria": [
+    {
+      "name": "refusal-shape",
+      "scorer": "hard_assertion",
+      "must_include": ["No", "reference soul"],
+      "must_not_include": ["moonlight"]
+    }
+  ],
+  "allowed_tools": [],
+  "refusal_expected": true,
+  "tags": ["refusal", "negative"]
+}

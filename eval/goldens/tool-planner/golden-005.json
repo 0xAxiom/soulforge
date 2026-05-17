@@ -1,0 +1,19 @@
+{
+  "id": "tool-planner-005-judge-planning",
+  "input": "Use two tools to inspect and verify a change.",
+  "expected_behavior": {
+    "summary": "The response should preserve planning, traceability, and fallback reasoning.",
+    "replay_output": "Planning keeps traceability: each tool maps to a goal, each goal has a fallback, and the final answer reports what verification proved."
+  },
+  "criteria": [
+    {
+      "name": "judge-planning-traceability",
+      "scorer": "llm_judge",
+      "rubric": "planning traceability fallback verification",
+      "min_score": 0.7
+    }
+  ],
+  "allowed_tools": ["search_codebase", "run_tests"],
+  "refusal_expected": false,
+  "tags": ["judge", "planning"]
+}

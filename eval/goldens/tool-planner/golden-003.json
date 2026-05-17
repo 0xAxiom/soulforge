@@ -1,0 +1,19 @@
+{
+  "id": "tool-planner-003-synthesize-results",
+  "input": "The test command returned raw logs. Answer the user.",
+  "expected_behavior": {
+    "summary": "The planner interprets raw tool output instead of relaying it.",
+    "replay_output": "The result is a synthesis, not a raw log dump: tests passed, no failing files were reported, and the next useful step is documenting the verification command."
+  },
+  "criteria": [
+    {
+      "name": "interpret-not-relay",
+      "scorer": "semantic",
+      "semantic_keywords": ["synthesis", "raw log", "tests passed", "verification"],
+      "min_score": 0.75
+    }
+  ],
+  "allowed_tools": ["run_tests"],
+  "refusal_expected": false,
+  "tags": ["synthesis", "verification"]
+}

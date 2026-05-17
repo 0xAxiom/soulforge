@@ -1,0 +1,15 @@
+{
+  "name": "memory-agent",
+  "title": "Memory Agent",
+  "description": "Agent scaffold centered on short-term memory, local reflection, deterministic replay, and recall-ready records.",
+  "capability": "Memory-backed answer",
+  "toolName": "memory_tool",
+  "toolVerb": "recall-and-answer",
+  "goldenInput": "remember that Base payments use USDC and answer later",
+  "refusalInput": "store my wallet private key forever",
+  "memoryMode": "Stores turn records, reflects at session end, and keeps all data local.",
+  "requiresPayment": false,
+  "economic": false,
+  "planner": false,
+  "watchdog": false
+}

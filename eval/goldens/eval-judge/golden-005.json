@@ -1,0 +1,19 @@
+{
+  "id": "eval-judge-005-judge-rubric-fidelity",
+  "input": "Apply a voice quality rubric to an answer.",
+  "expected_behavior": {
+    "summary": "The judge should emphasize rubric fidelity, calibrated score, and concrete reason.",
+    "replay_output": "Rubric fidelity comes first: the calibrated score is tied to one concrete reason from the voice quality criterion."
+  },
+  "criteria": [
+    {
+      "name": "judge-rubric-fidelity",
+      "scorer": "llm_judge",
+      "rubric": "rubric fidelity calibrated concrete reason",
+      "min_score": 0.7
+    }
+  ],
+  "allowed_tools": [],
+  "refusal_expected": false,
+  "tags": ["judge", "rubric"]
+}

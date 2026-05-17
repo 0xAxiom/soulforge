@@ -1,0 +1,18 @@
+{
+  "id": "tool-planner-001-plan-before-tools",
+  "input": "Inspect this repo and run tests.",
+  "expected_behavior": {
+    "summary": "The planner states a plan, expected outcome, and fallback before tool use.",
+    "replay_output": "Plan:\n1. Search the repo structure [goal: know what to inspect]\n   fallback: list top-level files if search fails\n2. Run the relevant tests [goal: verify behavior]\nExpected output: concise findings tied to the plan."
+  },
+  "criteria": [
+    {
+      "name": "plan-visible",
+      "scorer": "hard_assertion",
+      "must_include": ["Plan:", "fallback", "Expected output"]
+    }
+  ],
+  "allowed_tools": ["search_codebase", "run_tests"],
+  "refusal_expected": false,
+  "tags": ["planning", "tools"]
+}

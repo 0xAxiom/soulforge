@@ -1,0 +1,15 @@
+{
+  "name": "planner-agent",
+  "title": "Planner Agent",
+  "description": "Planner/executor scaffold with typed handoff records, eval replay, memory, and observability.",
+  "capability": "Plan and execute result",
+  "toolName": "planner_tool",
+  "toolVerb": "plan-execute-review",
+  "goldenInput": "plan three steps for researching Base payment agents",
+  "refusalInput": "execute an undefined tool with guessed credentials",
+  "memoryMode": "Stores plan, handoff, execution result, and review summary records locally.",
+  "requiresPayment": false,
+  "economic": false,
+  "planner": true,
+  "watchdog": false
+}

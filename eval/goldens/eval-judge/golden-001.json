@@ -1,0 +1,18 @@
+{
+  "id": "eval-judge-001-structured-verdict",
+  "input": "Score output against rubric: must mention cache invalidation.",
+  "expected_behavior": {
+    "summary": "The judge returns a terse structured verdict.",
+    "replay_output": "verdict: pass\nscore: 1\nreason: Output mentions cache invalidation, satisfying the rubric."
+  },
+  "criteria": [
+    {
+      "name": "exact-structured-verdict",
+      "scorer": "exact",
+      "exact_match": "verdict: pass\nscore: 1\nreason: Output mentions cache invalidation, satisfying the rubric."
+    }
+  ],
+  "allowed_tools": [],
+  "refusal_expected": false,
+  "tags": ["structured-output", "exact"]
+}

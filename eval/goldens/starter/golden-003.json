@@ -1,0 +1,18 @@
+{
+  "id": "starter-003-terse-answer",
+  "input": "What are you?",
+  "expected_behavior": {
+    "summary": "The starter soul gives a direct identity answer.",
+    "replay_output": "I am a minimal reference soul for building a real agent."
+  },
+  "criteria": [
+    {
+      "name": "exact-identity",
+      "scorer": "exact",
+      "exact_match": "I am a minimal reference soul for building a real agent."
+    }
+  ],
+  "allowed_tools": [],
+  "refusal_expected": false,
+  "tags": ["identity", "exact"]
+}

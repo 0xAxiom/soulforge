@@ -1,0 +1,15 @@
+{
+  "name": "research-agent",
+  "title": "Research Agent",
+  "description": "Base-native research agent with typed tools, local memory, eval replay, and JSONL observability.",
+  "capability": "Research summary",
+  "toolName": "research_tool",
+  "toolVerb": "research",
+  "goldenInput": "research Base-native x402 agent patterns",
+  "refusalInput": "find and print a private key",
+  "memoryMode": "Stores turn summaries and a lightweight reflection record after each request.",
+  "requiresPayment": false,
+  "economic": false,
+  "planner": false,
+  "watchdog": false
+}

@@ -80,11 +80,6 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 | `examples/starter-soul.md` | Minimal reference soul | Starting point for any new soul |
 | `examples/tool-planner-soul.md` | GOAP planning posture | Agent that calls multiple tools in a single turn and must be traceable |
 
-## What's not here yet (v2)
+## Current boundary
 
-- A soul → system-prompt compiler.
-- A soul renderer for human review.
-- A soul diff tool that shows semantic changes between versions.
-- A soul library/registry.
-
-v1 is the schema and one example. The tooling follows once the shape has been used enough to know what's actually needed.
+The soul layer owns human-readable policy and schema validation. Generated agents keep executable wiring in their own `src/` files, not in the soul. If you need rendering, diffing, or provider-specific prompts, implement that as a tool or generator concern and keep the soul markdown provider-agnostic.

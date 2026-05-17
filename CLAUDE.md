@@ -4,7 +4,7 @@ This file is the operating contract for any AI assistant (Claude, Codex, etc.) d
 
 ## What this repo is
 
-A workspace for building production AI agents organized around five primitives: **soul, tools, endpoints, memory, eval**. See `README.md` and `docs/ARCHITECTURE.md`.
+An AI-native repository substrate for building production agents from natural-language instructions given to coding agents. The repo is organized around explicit primitives: **souls, tools, endpoints, memory, eval, observability**. The `.ai/` folder is the machine-readable guidance layer for coding agents, and `generator/` provides optional copyable scaffolds. See `README.md` and `docs/ARCHITECTURE.md`.
 
 ## What this repo is NOT
 
@@ -15,7 +15,7 @@ A workspace for building production AI agents organized around five primitives: 
 
 | Layer            | Owner of decisions                              | Boundary                                              |
 | ---------------- | ----------------------------------------------- | ----------------------------------------------------- |
-| Repo structure   | Top-level architecture (`docs/ARCHITECTURE.md`) | Don't add new top-level folders without updating it.  |
+| Repo structure   | Top-level architecture (`docs/ARCHITECTURE.md`) | New top-level folders require an explicit architecture update. |
 | Module shape     | Each module's `README.md`                       | If module README and the code diverge, README is law. |
 | Examples         | Each example's local `README.md`                | Examples are illustrative, not load-bearing.          |
 | Soul schema      | `souls/schema/soul.schema.json`                 | Breaking changes require schema version bump.         |
@@ -40,7 +40,7 @@ A workspace for building production AI agents organized around five primitives: 
 When asked to add a feature:
 
 1. **Identify the primitive.** Soul, tool, endpoint, memory, eval, or observability? If it's none of these, the request is wrong for this repo.
-2. **Find the right module.** Don't create a new top-level folder. Add inside the existing primitive folder.
+2. **Find the right module.** Add implementation inside an existing primitive folder. Use `.ai/` only for machine guidance and `generator/` only for scaffold tooling.
 3. **Show, don't tell.** New capability → working example. Schema change → updated soul that uses the change.
 4. **Update READMEs upward.** Module README, then root README if the change is user-visible.
 
@@ -57,6 +57,7 @@ When asked to refactor:
 - Adding a CONTRIBUTING.md until there's enough contributor activity to warrant one.
 - Committing generated `node_modules`, `.next`, or `dist` directories.
 - Pushing to `main` without verifying the example you touched still builds.
+- Adding new top-level folders without updating `README.md`, `docs/ARCHITECTURE.md`, `CLAUDE.md`, and `.ai/repo-map.json`.
 
 ## Out of scope
 

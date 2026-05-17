@@ -1,0 +1,122 @@
+{
+  "repo": {
+    "name": "soulforge",
+    "thesis": "primitives + working examples > framework lock-in",
+    "primary_interface": "natural-language instructions given to AI coding agents inside this repository",
+    "positioning": "AI-native agent engineering substrate",
+    "node": ">=20",
+    "package_manager": "npm",
+    "license": "MIT"
+  },
+  "meta_layers": {
+    ".ai": {
+      "path": ".ai/",
+      "purpose": "Machine-readable guidance for AI coding agents",
+      "required_files": [
+        "overview.md",
+        "architecture.md",
+        "primitives.md",
+        "patterns.md",
+        "anti-patterns.md",
+        "task-routing.md",
+        "agent-template-guide.md",
+        "eval-guide.md",
+        "observability-guide.md",
+        "memory-guide.md",
+        "tool-authoring.md",
+        "examples-index.md",
+        "repo-map.json"
+      ]
+    },
+    "generator": {
+      "path": "generator/",
+      "purpose": "Optional scaffold accelerator and smoke-tested structure examples",
+      "command": "npx soulforge new <agent-name> --template <template-name>",
+      "templates": [
+        "research-agent",
+        "x402-paid-agent",
+        "memory-agent",
+        "planner-agent",
+        "trading-agent",
+        "watchdog-agent"
+      ]
+    }
+  },
+  "primitives": {
+    "souls": {
+      "path": "souls/",
+      "purpose": "Markdown-first behavior specifications",
+      "required_files": ["README.md", "schema/soul.schema.json", "validate.mjs"],
+      "examples": ["souls/examples/starter-soul.md", "souls/examples/tool-planner-soul.md", "souls/examples/eval-judge-soul.md"],
+      "tests": ["npm run validate-souls"],
+      "outputs": ["validated soul frontmatter"]
+    },
+    "tools": {
+      "path": "tools/",
+      "purpose": "Optional typed capability modules",
+      "required_files_per_module": ["README.md", "src/index.ts", "src/*.test.ts", "examples/"],
+      "examples": ["tools/bankr/"],
+      "tests": ["npm run test -- tools"],
+      "outputs": ["schema-validated tool results", "receipts", "observability events"]
+    },
+    "endpoints": {
+      "path": "endpoints/",
+      "purpose": "Agent-facing HTTP or local service surfaces",
+      "required_files_per_example": ["README.md", ".env.example", "tests"],
+      "examples": ["endpoints/examples/url-inspector", "endpoints/examples/url-inspector-with-memory"],
+      "outputs": ["HTTP responses", "payment manifests", "tool calls"]
+    },
+    "memory": {
+      "path": "memory/",
+      "purpose": "Short-term, long-term, recall, and reflection primitives",
+      "required_files": ["README.md", "src/index.ts", "examples/"],
+      "tests": ["npm run test -- memory"],
+      "outputs": ["Map records", "SQLite records", "recall results", "reflection summaries"]
+    },
+    "eval": {
+      "path": "eval/",
+      "purpose": "Traces, goldens, scoring, diff, and cache",
+      "required_files": ["README.md", "cli.ts", "goldens/"],
+      "tests": ["npm run eval -- run --soul souls/examples/starter-soul.md", "npm run test -- eval"],
+      "outputs": ["score tables", "JSONL traces", "cache records"]
+    },
+    "observability": {
+      "path": "observability/",
+      "purpose": "Local JSONL cost, latency, error, tool, and receipt telemetry",
+      "required_files": ["README.md", "src/index.ts"],
+      "tests": ["npm run test -- observability"],
+      "outputs": ["~/.soulforge/obs/YYYY-MM-DD.jsonl"]
+    }
+  },
+  "relationships": [
+    "natural-language requests are routed through .ai guidance before code is written",
+    "souls describe policy but do not import providers",
+    "tools expose typed capabilities and own side effects",
+    "endpoints validate and route requests into tools",
+    "memory persists local records and reflection summaries",
+    "eval replays behavior through goldens and traces",
+    "observability records runtime behavior for debugging and replay",
+    "generator optionally creates standalone agents that copy these patterns"
+  ],
+  "natural_language_routes": {
+    "Base-native research agent with memory and x402 payments": ["souls", "tools", "endpoints", "memory", "eval", "observability"],
+    "long-horizon monitoring agent with Bankr integration and evals": ["souls", "tools/bankr", "memory", "eval", "observability", "endpoints"],
+    "x402-paid trading agent with memory": ["souls", "tools/bankr", "endpoints", "memory", "eval", "observability"]
+  },
+  "quality_gates": ["npm install", "npm run lint", "npm run typecheck", "npm run test", "npm run build", "npm run validate-souls"],
+  "naming": {
+    "souls": "<agent-name>-soul.md",
+    "tools": "tools/<tool-name>/src/index.ts",
+    "examples": "endpoints/examples/<agent-name>/",
+    "goldens": "eval/goldens/<soul-name>/golden-001.json",
+    "tests": "*.test.ts",
+    "telemetry": "YYYY-MM-DD.jsonl"
+  },
+  "forbidden": [
+    "hidden runtime",
+    "provider-specific soul schema fields",
+    "unstructured tool outputs",
+    "live financial action without dry-run/cap/idempotency/receipt",
+    "new top-level implementation folders without governance docs"
+  ]
+}

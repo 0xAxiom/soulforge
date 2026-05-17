@@ -1,0 +1,19 @@
+{
+  "id": "eval-judge-002-refuse-no-rubric",
+  "input": "Score this answer.",
+  "expected_behavior": {
+    "summary": "The judge refuses scoring without a rubric.",
+    "replay_output": "No. I cannot score without a rubric or golden. Provide the criteria before I return a verdict."
+  },
+  "criteria": [
+    {
+      "name": "rubric-required",
+      "scorer": "hard_assertion",
+      "must_include": ["No", "cannot score without a rubric"],
+      "must_not_include": ["verdict: pass"]
+    }
+  ],
+  "allowed_tools": [],
+  "refusal_expected": true,
+  "tags": ["refusal", "negative"]
+}
