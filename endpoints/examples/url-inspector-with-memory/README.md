@@ -1,6 +1,6 @@
 # url-inspector-with-memory
 
-Reference agent extending `endpoints/examples/url-inspector` with the Track 1 memory primitives.
+Reference agent extending `endpoints/examples/url-inspector` with SoulForge memory primitives.
 
 It stays deliberately small:
 
@@ -10,6 +10,17 @@ It stays deliberately small:
 - reflection is manually triggered from an example transcript
 
 No model provider, cloud vector store, or hosted observability backend is required.
+
+## Contract
+
+| Concern | Behavior |
+| --- | --- |
+| Input | `url`, `html`, optional `traceId` |
+| Output | URL metadata plus historical recall results |
+| Side effects | short-term write, long-term SQLite write, recall SQLite write |
+| Observability | reflection emits local JSONL memory telemetry |
+| Replay | deterministic local HTML fixtures and local hash recall |
+| Failure | invalid URLs, invalid memory paths, corrupt SQLite, and malformed reflection input fail loudly |
 
 ## Environment
 
@@ -48,7 +59,7 @@ npm run lint
 3. Before inspection, the agent queries recall for similar prior URL summaries.
 4. It extracts title, description, link count, and word count.
 5. It persists the inspection in long-term SQLite with tags.
-6. It writes a recall document for future semantic search.
+6. It writes a recall document for later retrieval.
 7. A human can manually trigger reflection over a transcript; the resulting summary is persisted in long-term memory and recall.
 
 ## Transcript Example
@@ -60,8 +71,19 @@ user: If I ask about metadata quality later, recall the historical result.
 assistant: I will persist this inspection summary and add it to recall.
 ```
 
+## AI Extension Notes
+
+Use this example when a natural-language request includes "with memory", "historical recall", "reflect", or "remember prior results." Preserve the explicit lifecycle:
+
+1. validate input
+2. query recall
+3. execute deterministic work
+4. persist long-term memory
+5. add recall text
+6. reflect only when manually triggered
+
 ## Limits
 
 The recall backend is a local deterministic hash embedder, not a hosted semantic model. It is replay infrastructure for proving lifecycle, persistence, and interface shape. It is not high-quality semantic retrieval.
 
-Turbopuffer and pgvector are future semantic backends. The example intentionally calls only the `add/query` boundary so the backend can be swapped without turning SoulForge into a runtime.
+The example intentionally calls only the `add/query` boundary so higher-quality recall backends can be swapped without turning SoulForge into a runtime.

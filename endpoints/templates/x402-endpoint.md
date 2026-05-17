@@ -1,14 +1,13 @@
 # x402 Endpoint Template
 
-**Pipeline**: agent-factory
 **Category**: Monetized API / Agent Service
-**Complexity**: Low
+**Primary use**: AI coding agents creating paid Base-native endpoints from natural-language requests
 
 ---
 
 ## Description
 
-A pay-per-call API endpoint built with Next.js + the `x402-next` payment middleware. One prompt produces a deployed HTTPS endpoint that:
+A pay-per-call API endpoint built with Next.js + the `x402-next` payment middleware. This template documents the structure AI coding agents should produce for a deployed HTTPS endpoint that:
 
 1. Returns a free `GET /api/manifest` describing the service so other agents can discover it.
 2. Returns `402 Payment Required` on the paid route until the caller attaches an `X-PAYMENT` header.
@@ -28,7 +27,7 @@ The endpoint is callable by any x402-aware client: AWS Bedrock agents via the x4
 - One paid endpoint at `POST /api/<tool>` per template instance
 - Zod request/response validation
 - Configurable price, network, and pay-to address via env
-- Production-ready Next.js 15 app router scaffold
+- Next.js 15 app router scaffold with explicit contracts and reproduction steps
 
 ### Two Modes
 

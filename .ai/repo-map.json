@@ -62,16 +62,18 @@
     "endpoints": {
       "path": "endpoints/",
       "purpose": "Agent-facing HTTP or local service surfaces",
+      "required_files": ["README.md", "src/contracts.ts"],
       "required_files_per_example": ["README.md", ".env.example", "tests"],
       "examples": ["endpoints/examples/url-inspector", "endpoints/examples/url-inspector-with-memory"],
-      "outputs": ["HTTP responses", "payment manifests", "tool calls"]
+      "tests": ["npm run test -- endpoints"],
+      "outputs": ["HTTP responses", "payment manifests", "tool calls", "payment receipts"]
     },
     "memory": {
       "path": "memory/",
       "purpose": "Short-term, long-term, recall, and reflection primitives",
       "required_files": ["README.md", "src/index.ts", "examples/"],
       "tests": ["npm run test -- memory"],
-      "outputs": ["Map records", "SQLite records", "recall results", "reflection summaries"]
+      "outputs": ["Map records", "SQLite records", "recall results", "reflection summaries", "memory telemetry"]
     },
     "eval": {
       "path": "eval/",

@@ -7,6 +7,7 @@ export default defineConfig({
       "eval/**/*.test.ts",
       "observability/**/*.test.ts",
       "tools/**/*.test.ts",
+      "endpoints/src/**/*.test.ts",
       "endpoints/examples/url-inspector-with-memory/**/*.test.ts"
     ],
     globals: true

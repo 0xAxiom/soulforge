@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "eval": "tsx eval/cli.ts",
-    "lint": "eslint memory/**/*.ts eval/**/*.ts observability/**/*.ts tools/**/*.ts endpoints/examples/url-inspector-with-memory/**/*.ts",
+    "lint": "eslint memory/**/*.ts eval/**/*.ts observability/**/*.ts tools/**/*.ts endpoints/src/**/*.ts endpoints/examples/url-inspector-with-memory/**/*.ts",
     "scaffold:smoke": "node generator/cli.mjs new ai-smoke --template research-agent --out .tmp/scaffold --force && npm --prefix .tmp/scaffold/ai-smoke install && npm --prefix .tmp/scaffold/ai-smoke run typecheck && npm --prefix .tmp/scaffold/ai-smoke run test",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",

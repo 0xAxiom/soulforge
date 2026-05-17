@@ -117,12 +117,12 @@ The implementation folders are peers. No primitive secretly owns the others.
 | Module | Status | Verification |
 | --- | --- | --- |
 | `souls/` | Schema, examples, validate CLI | `npm run validate-souls` |
-| `memory/` | Map KV, SQLite long-term, local recall, reflection | `npm run test -- memory` |
+| `memory/` | Local-first memory contracts: Map KV, SQLite long-term, recall, reflection, telemetry | `npm run test -- memory` |
 | `eval/` | JSONL traces, goldens, scoring, diff, cache | `npm run eval -- run --soul souls/examples/starter-soul.md` |
 | `observability/` | JSONL sink, cost ledger, latency histogram, error grouping | `npm run test -- observability` |
 | `tools/bankr/` | Dry-run-first Bankr adapter with receipts and guardrails | `npm run test -- tools/bankr` |
 | `generator/` | Optional scaffold accelerator and six structure examples | `npm run scaffold:smoke` |
-| `endpoints/` | x402 template and URL inspector examples | see `endpoints/examples/*/README.md` |
+| `endpoints/` | Endpoint contracts, x402 template, URL inspector examples | `npm run test -- endpoints` |
 
 Quality gates:
 

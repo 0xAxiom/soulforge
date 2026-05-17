@@ -40,10 +40,26 @@ Set `PAY_TO_ADDRESS` and `NETWORK` (default `base`) in the Vercel project env.
 
 `middleware.ts` registers `/api/inspect` with the `x402-next` `paymentMiddleware`. The first request without payment returns 402 + a JSON `paymentRequirements` object. An x402-aware client constructs a USDC payment for the stated amount + recipient, retries with `X-PAYMENT: <signed payload>`. The middleware verifies via the public Coinbase facilitator, then forwards to the route handler.
 
+## Contract
+
+| Concern | Behavior |
+| --- | --- |
+| Input | `POST /api/inspect` accepts `{ "url": "https://..." }` |
+| Output | metadata JSON with title, description, OG image, link count, word count |
+| Payment | x402 USDC payment required before route execution |
+| Side effects | fetches caller-provided URL after payment verification |
+| Observability | payment middleware exposes x402 receipt path; route can be wrapped with SoulForge JSONL telemetry |
+| Replay | capture request URL, payment receipt, and response fixture |
+| Failure | invalid body returns 400; upstream fetch failure returns 502 |
+
 ## Bazaar listing
 
 The `GET /api/manifest` route returns a machine-readable description that the Coinbase x402 Bazaar (and other registries) can index. After deploying, submit the deployment URL to the Bazaar to make the endpoint discoverable by AWS Bedrock agents and other x402-aware consumers.
 
 ## Swapping in AI
 
-This demo uses pure data extraction so it runs anywhere with no API keys. The template (`templates/agent/x402-endpoint/TEMPLATE.md`) documents the AI variant: swap the `/api/inspect` route for a Vercel AI SDK handler (`generateObject` / `streamText`) backed by Claude, OpenAI, or any provider. The x402 middleware is identical either way.
+This demo uses pure data extraction so it runs anywhere with no model API keys. To add an AI-backed route, keep the same x402 middleware and replace the route internals with a provider-specific handler. Keep provider configuration out of the soul and preserve the same input validation, receipt capture, output schema, tests, and eval goldens.
+
+## AI Extension Notes
+
+Use this example when a natural-language request includes "x402-paid", "paid API", "Base payment", or "agent-to-agent commerce." The payment boundary belongs in middleware or an equivalent pre-tool guard. Business logic must not execute before payment verification.

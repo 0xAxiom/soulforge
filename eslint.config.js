@@ -10,6 +10,7 @@ export default tseslint.config(
       "eval/**/*.ts",
       "observability/**/*.ts",
       "tools/**/*.ts",
+      "endpoints/src/**/*.ts",
       "endpoints/examples/url-inspector-with-memory/**/*.ts"
     ],
     languageOptions: {
