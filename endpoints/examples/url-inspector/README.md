@@ -1,6 +1,6 @@
 # x402 URL Inspector Demo
 
-Minimal pay-per-call API. Next.js + `x402-next` middleware gating a route at $0.01 USDC on Base. Built as the canonical example for AppFactory's `x402-endpoint` template.
+Minimal pay-per-call API. Next.js + `x402-next` middleware gating a route at $0.01 USDC on Base. Canonical example for SoulForge's `x402-endpoint` template.
 
 ## What it does
 

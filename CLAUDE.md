@@ -8,7 +8,6 @@ A workspace for building production AI agents organized around five primitives: 
 
 ## What this repo is NOT
 
-- Not a fork of AppFactory. The `agent-factory` pipeline in AppFactory stays. SoulForge is sibling, not replacement.
 - Not a framework. There is no `soulforge` runtime to import. The repo provides schemas, templates, and reference implementations.
 - Not opinionated about model provider. Examples may use Anthropic, OpenAI, or local models. Soul schema is provider-agnostic.
 
@@ -61,11 +60,4 @@ When asked to refactor:
 
 ## Out of scope
 
-If a user asks SoulForge to:
-
-- Build a mobile app → redirect to `MeltedMindz/AppFactory` (app-factory pipeline).
-- Build a static website → redirect to AppFactory (website-pipeline).
-- Build a dApp → redirect to AppFactory (dapp-factory).
-- Build a Claude plugin → redirect to AppFactory (plugin-factory).
-
-SoulForge only builds agents.
+SoulForge only builds agents. If a user asks for a mobile app, static website, dApp, or non-agent plugin, decline and explain that this repo is agent-only.

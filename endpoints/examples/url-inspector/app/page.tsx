@@ -16,7 +16,7 @@ export default function Home() {
       </h1>
       <p style={{ color: "#94a3b8", marginTop: 12 }}>
         Pay-per-call API built with Next.js + x402-next. Canonical demo for
-        AppFactory&apos;s x402-endpoint template.
+        SoulForge&apos;s x402-endpoint template.
       </p>
 
       <h2 style={{ fontSize: 18, marginTop: 32, color: "#cbd5e1" }}>

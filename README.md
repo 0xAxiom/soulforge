@@ -66,11 +66,9 @@ POST https://x402-endpoint-demo.vercel.app/api/inspect   ($0.01 USDC on Base)
 
 ---
 
-## Why a separate repo from AppFactory
+## Why agents deserve a dedicated workspace
 
-AppFactory builds seven different output shapes (mobile, web, dApp, agent, plugin, mini-app, website). Each pipeline has its own framing of what "done" looks like. The agent pipeline always felt cramped under that umbrella — agents need soul authoring, memory persistence, eval loops, and onchain payment plumbing that don't fit AppFactory's "ship a deliverable" model.
-
-SoulForge inverts that: it assumes you're building something that runs continuously, listens, learns, and earns. The whole repo is shaped around that assumption.
+Multi-product workspaces collapse agents into one of many output shapes alongside mobile apps, websites, dApps, and plugins. That framing assumes "done" looks like a deliverable you ship and walk away from. Agents are not that. They run continuously, listen, learn, and earn. The whole repo is shaped around that assumption.
 
 ---
 
