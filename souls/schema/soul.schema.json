@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/MeltedMindz/soulforge/blob/main/souls/schema/soul.schema.json",
+  "title": "Soul",
+  "description": "Frontmatter contract for a SoulForge soul file. The markdown body is convention; the frontmatter is enforced.",
+  "type": "object",
+  "required": ["name", "version", "scope"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Kebab-case identifier for the agent. Must be unique within a project.",
+      "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+      "minLength": 2,
+      "maxLength": 64
+    },
+    "version": {
+      "type": "string",
+      "description": "Semver. Bump major for identity changes that downstream consumers would notice.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.-]+)?$"
+    },
+    "provider_hint": {
+      "type": "string",
+      "description": "Suggested model provider. The soul is provider-agnostic; this is a hint, not a requirement.",
+      "enum": ["anthropic", "openai", "google", "local", "mixed"]
+    },
+    "scope": {
+      "type": "array",
+      "description": "What this agent is for. Each item is a single short sentence.",
+      "items": { "type": "string", "minLength": 4, "maxLength": 240 },
+      "minItems": 1,
+      "maxItems": 12
+    },
+    "refuses": {
+      "type": "array",
+      "description": "What this agent will not do. Each item is a single short sentence.",
+      "items": { "type": "string", "minLength": 4, "maxLength": 240 },
+      "minItems": 0,
+      "maxItems": 24
+    },
+    "tags": {
+      "type": "array",
+      "description": "Free-form tags for grouping souls in a registry.",
+      "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+      "maxItems": 16
+    }
+  }
+}
