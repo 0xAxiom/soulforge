@@ -30,6 +30,7 @@ describe("SqliteRecallStore", () => {
 
     expect(results[0]?.id).toBe("pricing");
     expect(results[0]?.score).toBeGreaterThan(0);
+    expect(results[0]?.provenance.embedding_version).toBe("local-hash-v1");
     recall.close();
   });
 });

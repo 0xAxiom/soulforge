@@ -22,7 +22,10 @@ const reflection = new ReflectionPipeline({ longTerm, recall, telemetry });
 
 const summary = reflection.run({
   traceId: "demo-reflect-001",
+  turnId: "turn-004",
+  parentTurnId: "turn-003",
   sessionId: "demo-session-001",
+  soulVersion: "starter@0.1.0",
   tags: ["demo", "url-inspector"],
   transcript: [
     {

@@ -3,10 +3,13 @@ import { dirname } from "node:path";
 import type { JsonObject } from "./types.js";
 
 export interface MemoryTelemetryEvent {
-  readonly traceId: string;
+  readonly trace_id: string;
+  readonly session_id?: string | undefined;
+  readonly turn_id?: string | undefined;
+  readonly parent_turn_id?: string | undefined;
   readonly operation: string;
-  readonly latencyMs: number;
-  readonly costUsd: number;
+  readonly latency_ms: number;
+  readonly cost_usd: number;
   readonly ok: boolean;
   readonly error?: string;
   readonly attributes?: JsonObject;

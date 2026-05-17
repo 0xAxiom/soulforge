@@ -33,6 +33,13 @@ export interface UrlInspectorWithMemoryOptions {
   readonly namespace?: string;
 }
 
+export interface UrlReflectionOptions {
+  readonly traceId?: string;
+  readonly turnId?: string;
+  readonly parentTurnId?: string;
+  readonly soulVersion?: string;
+}
+
 export class UrlInspectorWithMemory {
   private readonly namespace: string;
   private readonly shortTerm = new ShortTermMemory<string>();
@@ -103,20 +110,41 @@ export class UrlInspectorWithMemory {
       .map((result) => ({ id: result.id, text: result.text, score: result.score }));
   }
 
-  reflect(sessionId: string, transcript: readonly TranscriptTurn[], traceId?: string): ReflectionSummary {
+  reflect(
+    sessionId: string,
+    transcript: readonly TranscriptTurn[],
+    options: UrlReflectionOptions = {}
+  ): ReflectionSummary {
     const input = {
       sessionId,
       namespace: this.namespace,
       transcript,
       tags: ["url-inspector"]
     };
-    return this.reflection.run(traceId === undefined ? input : { ...input, traceId });
+    return this.reflection.run({
+      ...input,
+      ...definedCorrelation(options)
+    });
   }
 
   close(): void {
     this.longTerm.close();
     this.recall.close();
   }
+}
+
+function definedCorrelation(options: UrlReflectionOptions): UrlReflectionOptions {
+  const result: {
+    traceId?: string;
+    turnId?: string;
+    parentTurnId?: string;
+    soulVersion?: string;
+  } = {};
+  if (options.traceId !== undefined) result.traceId = options.traceId;
+  if (options.turnId !== undefined) result.turnId = options.turnId;
+  if (options.parentTurnId !== undefined) result.parentTurnId = options.parentTurnId;
+  if (options.soulVersion !== undefined) result.soulVersion = options.soulVersion;
+  return result;
 }
 
 function pick(html: string, re: RegExp): string | null {

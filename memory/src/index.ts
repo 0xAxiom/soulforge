@@ -5,6 +5,7 @@ export type { LongTermMemoryEntry, PutLongTermMemoryInput, ListLongTermMemoryInp
 export { HashEmbeddingBackend, SqliteRecallStore } from "./recall.js";
 export type { EmbeddingBackend, RecallDocument, RecallResult } from "./recall.js";
 export { ExtractiveSummaryGenerator, ReflectionPipeline } from "./reflect.js";
+export { hashTranscript } from "./reflect.js";
 export type {
   ReflectionInput,
   ReflectionPipelineOptions,
@@ -15,4 +16,4 @@ export type {
 } from "./reflect.js";
 export { JsonlMemoryTelemetrySink, NoopMemoryTelemetrySink } from "./telemetry.js";
 export type { MemoryTelemetryEvent, MemoryTelemetrySink } from "./telemetry.js";
-export type { Clock, JsonObject, JsonPrimitive, JsonValue } from "./types.js";
+export type { Clock, JsonObject, JsonPrimitive, JsonValue, MemoryRecordProvenance } from "./types.js";

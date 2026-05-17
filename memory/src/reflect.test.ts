@@ -39,9 +39,16 @@ describe("ReflectionPipeline", () => {
     });
 
     expect(summary.summary).toContain("Session session-1 contained 2 turns.");
-    expect(longTerm.get("reflection:session-1")?.tags).toContain("reflection");
-    expect(recall.query("historical recall url inspector", { limit: 1 })[0]?.id).toBe("reflection:session-1");
-    expect(readFileSync(telemetryPath, "utf8")).toContain("\"traceId\":\"trace-test\"");
+    const persisted = longTerm.get("reflection:session-1");
+    expect(persisted?.tags).toContain("reflection");
+    expect(persisted?.provenance.source_transcript_hash).toMatch(/^[a-f0-9]{64}$/);
+    expect(persisted?.provenance.model_provider).toBe("local");
+    const recalled = recall.query("historical recall url inspector", { limit: 1 })[0];
+    expect(recalled?.id).toBe("reflection:session-1");
+    expect(recalled?.provenance.reflection_strategy_version).toBe("extractive-summary.v1");
+    const telemetry = readFileSync(telemetryPath, "utf8");
+    expect(telemetry).toContain("\"trace_id\":\"trace-test\"");
+    expect(telemetry).toContain("\"session_id\":\"session-1\"");
 
     longTerm.close();
     recall.close();

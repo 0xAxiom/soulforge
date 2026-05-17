@@ -6,7 +6,7 @@ It stays deliberately small:
 
 - short-term memory keeps the current request URL in-process
 - long-term memory persists inspection summaries in SQLite
-- recall stores local hash embeddings in SQLite for semantic lookup
+- recall stores local hash embeddings in SQLite for deterministic replay lookup
 - reflection is manually triggered from an example transcript
 
 No model provider, cloud vector store, or hosted observability backend is required.
@@ -30,7 +30,7 @@ The demo prints:
 
 - a first URL inspection
 - a repeated inspection with historical recall
-- a semantic recall query
+- a deterministic recall query
 - a reflection summary persisted into long-term memory and recall
 
 ## Verify
@@ -62,4 +62,6 @@ assistant: I will persist this inspection summary and add it to recall.
 
 ## Limits
 
-The recall backend is a local deterministic hash embedder, not a hosted semantic model. It proves the interface and lifecycle locally; high-quality production retrieval can replace the embedder/store boundary later without changing the reference agent’s memory calls.
+The recall backend is a local deterministic hash embedder, not a hosted semantic model. It is replay infrastructure for proving lifecycle, persistence, and interface shape. It is not high-quality semantic retrieval.
+
+Turbopuffer and pgvector are future semantic backends. The example intentionally calls only the `add/query` boundary so the backend can be swapped without turning SoulForge into a runtime.

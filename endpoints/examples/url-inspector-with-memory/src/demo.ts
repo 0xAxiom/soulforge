@@ -31,7 +31,7 @@ const second = agent.inspect({
     </html>`
 });
 
-const semanticRecall = agent.recallSimilar("metadata quality for example.com pages");
+const deterministicRecall = agent.recallSimilar("metadata quality for example.com pages");
 const reflection = agent.reflect(
   "url-demo-session",
   [
@@ -40,9 +40,14 @@ const reflection = agent.reflect(
     { role: "user", content: "If I ask about metadata quality later, recall the historical result." },
     { role: "assistant", content: "We decided to persist inspection summaries and add them to recall." }
   ],
-  "url-demo-reflect"
+  {
+    traceId: "url-demo-reflect",
+    turnId: "turn-004",
+    parentTurnId: "turn-003",
+    soulVersion: "starter@0.1.0"
+  }
 );
 
-console.log(JSON.stringify({ first, second, semanticRecall, reflection, dataDir }, null, 2));
+console.log(JSON.stringify({ first, second, deterministicRecall, reflection, dataDir }, null, 2));
 
 agent.close();

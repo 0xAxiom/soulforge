@@ -1,6 +1,8 @@
+import { createHash } from "node:crypto";
 import type { LongTermMemoryStore } from "./long-term.js";
 import type { SqliteRecallStore } from "./recall.js";
-import type { JsonObject } from "./types.js";
+import type { JsonObject, MemoryRecordProvenance } from "./types.js";
+import { validateTags } from "./types.js";
 import type { MemoryTelemetrySink } from "./telemetry.js";
 import { NoopMemoryTelemetrySink } from "./telemetry.js";
 
@@ -18,6 +20,12 @@ export interface ReflectionInput {
   readonly transcript: readonly TranscriptTurn[];
   readonly tags?: readonly string[];
   readonly traceId?: string;
+  readonly turnId?: string;
+  readonly parentTurnId?: string;
+  readonly soulVersion?: string;
+  readonly modelProvider?: string;
+  readonly modelName?: string;
+  readonly reflectionStrategyVersion?: string;
 }
 
 export interface ReflectionSummary {
@@ -41,6 +49,7 @@ export interface ReflectionPipelineOptions {
 
 export class ExtractiveSummaryGenerator implements SummaryGenerator {
   summarize(input: ReflectionInput): ReflectionSummary {
+    validateReflectionInput(input);
     const userTurns = input.transcript.filter((turn) => turn.role === "user").map((turn) => turn.content);
     const assistantTurns = input.transcript.filter((turn) => turn.role === "assistant").map((turn) => turn.content);
     const decisions = input.transcript
@@ -79,44 +88,95 @@ export class ReflectionPipeline {
   run(input: ReflectionInput): ReflectionSummary {
     const startedAt = performance.now();
     const traceId = input.traceId ?? crypto.randomUUID();
+    const sessionId = input.sessionId;
     try {
+      validateReflectionInput(input);
       const namespace = input.namespace ?? "default";
-      const tags = ["reflection", ...(input.tags ?? [])];
+      const tags = validateTags(["reflection", ...(input.tags ?? [])]);
+      const sourceTranscriptHash = hashTranscript(input.transcript);
+      const generatedAt = new Date();
+      const provenance = reflectionProvenance(input, sourceTranscriptHash, generatedAt);
       const summary = this.summarizer.summarize(input);
       const value = summaryToJson(summary);
       this.longTerm.put({
         namespace,
         key: `reflection:${input.sessionId}`,
         value,
-        tags
+        tags,
+        provenance
       });
       this.recall.add({
         namespace,
         id: `reflection:${input.sessionId}`,
         text: [summary.summary, ...summary.facts, ...summary.decisions, ...summary.openQuestions].join("\n"),
-        metadata: { kind: "reflection", sessionId: input.sessionId }
+        metadata: { kind: "reflection", sessionId: input.sessionId, sourceTranscriptHash },
+        provenance
       });
       this.telemetry.emit({
-        traceId,
+        trace_id: traceId,
+        session_id: sessionId,
+        turn_id: input.turnId,
+        parent_turn_id: input.parentTurnId,
         operation: "memory.reflect",
-        latencyMs: Math.round(performance.now() - startedAt),
-        costUsd: 0,
+        latency_ms: Math.round(performance.now() - startedAt),
+        cost_usd: 0,
         ok: true,
         attributes: { namespace, sessionId: input.sessionId }
       });
       return summary;
     } catch (error) {
       this.telemetry.emit({
-        traceId,
+        trace_id: traceId,
+        session_id: sessionId,
+        turn_id: input.turnId,
+        parent_turn_id: input.parentTurnId,
         operation: "memory.reflect",
-        latencyMs: Math.round(performance.now() - startedAt),
-        costUsd: 0,
+        latency_ms: Math.round(performance.now() - startedAt),
+        cost_usd: 0,
         ok: false,
         error: error instanceof Error ? error.message : "Unknown reflection error"
       });
       throw error;
     }
   }
+}
+
+export function hashTranscript(transcript: readonly TranscriptTurn[]): string {
+  return createHash("sha256").update(JSON.stringify(transcript)).digest("hex");
+}
+
+function validateReflectionInput(input: ReflectionInput): void {
+  if (input.sessionId.trim().length === 0) {
+    throw new Error("Reflection input requires a non-empty sessionId");
+  }
+  if (input.transcript.length === 0) {
+    throw new Error("Reflection input requires at least one transcript turn");
+  }
+  for (const turn of input.transcript) {
+    if (turn.content.trim().length === 0) {
+      throw new Error("Reflection transcript turns must have non-empty content");
+    }
+  }
+}
+
+function reflectionProvenance(
+  input: ReflectionInput,
+  sourceTranscriptHash: string,
+  generatedAt: Date
+): Partial<MemoryRecordProvenance> {
+  const reflectionVersion = "reflection.v1";
+  const strategyVersion = input.reflectionStrategyVersion ?? "extractive-summary.v1";
+  return {
+    schema_version: "memory-record.v1",
+    embedding_version: "local-hash-v1",
+    reflection_version: reflectionVersion,
+    source_transcript_hash: sourceTranscriptHash,
+    soul_version: input.soulVersion ?? null,
+    model_provider: input.modelProvider ?? "local",
+    model_name: input.modelName ?? "extractive-summary",
+    generated_at: generatedAt.toISOString(),
+    reflection_strategy_version: strategyVersion
+  };
 }
 
 function summaryToJson(summary: ReflectionSummary): JsonObject {

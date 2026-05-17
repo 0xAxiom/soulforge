@@ -27,6 +27,8 @@ describe("LongTermMemoryStore", () => {
 
     const reopened = new LongTermMemoryStore(dbPath);
     expect(reopened.get("preference:tone")?.value).toEqual({ tone: "terse" });
+    expect(reopened.get("preference:tone")?.provenance.schema_version).toBe("memory-record.v1");
+    expect(reopened.get("preference:tone")?.provenance.generated_at).toMatch(/^20\d\d-/);
     expect(reopened.list({ tag: "voice" }).map((entry) => entry.key)).toEqual(["preference:tone"]);
     reopened.close();
   });
@@ -41,6 +43,18 @@ describe("LongTermMemoryStore", () => {
 
     now = new Date("2026-05-17T00:00:02.000Z");
     expect(store.get("temporary")).toBeNull();
+    store.close();
+  });
+
+  it("updates duplicate keys without creating a second record", () => {
+    const store = new LongTermMemoryStore(makeDbPath());
+
+    const first = store.put({ key: "preference", value: "terse", tags: ["profile"] });
+    const second = store.put({ key: "preference", value: "detailed", tags: ["profile"] });
+
+    expect(second.id).toBe(first.id);
+    expect(store.get("preference")?.value).toBe("detailed");
+    expect(store.list()).toHaveLength(1);
     store.close();
   });
 });
