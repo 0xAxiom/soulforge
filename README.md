@@ -36,7 +36,7 @@ soulforge/
 │   └── ARCHITECTURE.md       ← how the five primitives compose
 ├── souls/                    ← soul schema + authored examples
 ├── endpoints/                ← endpoint templates + working demos
-├── memory/                   ← memory primitives (v1: README + stubs)
+├── memory/                   ← memory primitives (short-term, SQLite long-term, local recall, reflect)
 ├── eval/                     ← eval harness (v1: README + stubs)
 ├── observability/            ← tracing + cost tracking (v1: README + stubs)
 └── research/                 ← notes from studying external frameworks and papers
@@ -53,7 +53,7 @@ The five primitive folders are mirrored on the same level intentionally — none
 | `souls/`          | JSON schema, two example souls, and a `validate-souls` CLI               |
 | `endpoints/`      | `x402-endpoint` template + working URL-inspector demo deployed on Vercel |
 | `docs/`           | Architecture write-up                                                   |
-| `memory/`         | README only — directional, marked as v2 work                            |
+| `memory/`         | Track 1 vertical slice: Map KV, SQLite long-term, local recall, reflect |
 | `eval/`           | README only — directional, marked as v2 work                            |
 | `observability/`  | README only — directional, marked as v2 work                            |
 
@@ -76,4 +76,4 @@ Multi-product workspaces collapse agents into one of many output shapes alongsid
 
 v1. Foundation. Things will change. The five-primitive shape is the bet — implementations under each are the iteration space.
 
-License: MIT (planned — pending org call).
+License: MIT.

@@ -1,36 +1,107 @@
 # memory/
 
-> **v1 placeholder.** No runnable code in this folder yet. This README is the design intent. v2 will land the actual primitives.
+Memory primitives for SoulForge agents. These are copy-pasteable TypeScript modules, not a runtime package.
 
-Agent memory has three different lifecycles. Treating them as one (just "the vector store") is the most common modeling error in agent systems. SoulForge separates them on purpose.
+Track 1 vertical slice status: runnable and tested for short-term memory, long-term SQLite memory, local recall, and manual reflection.
 
-## The three lifecycles
+## Modules
 
-| Lifecycle    | Lifetime           | Storage shape           | Read pattern                  | Example                                       |
-| ------------ | ------------------ | ----------------------- | ----------------------------- | --------------------------------------------- |
-| Short-term   | Single conversation| In-process KV           | Read every turn               | "User just told me their name"               |
-| Long-term    | Cross-conversation | SQLite or KV w/ TTL     | Read at session start         | "This user prefers terse responses"           |
-| Recall       | Permanent          | Embedding store         | Read by semantic relevance    | "What did we decide about the API design?"   |
+| Module | Path | Storage | Purpose |
+| --- | --- | --- | --- |
+| Short-term | `src/short-term.ts` | In-process `Map` | Per-session scratch state. |
+| Long-term | `src/long-term.ts` | SQLite via `better-sqlite3` | Cross-session key/value memory with tags and optional TTL. |
+| Recall | `src/recall.ts` | SQLite vectors + local hash embeddings | Deterministic semantic-ish lookup that runs locally. |
+| Reflect | `src/reflect.ts` | Long-term + recall | Manual transcript summarization and persistence. |
 
-## Planned primitives (v2)
+## Environment
 
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `SOULFORGE_MEMORY_DIR` | no | `~/.soulforge/memory-demo` | Directory used by `npm run memory:example`. |
+
+The primitives themselves accept explicit SQLite paths. They do not read env vars directly.
+
+## Run
+
+From the repo root:
+
+```bash
+npm install
+npm run memory:example
 ```
-memory/
-├── short-term/        ← Map-based session store with a simple API
-├── long-term/         ← SQLite adapter with key/value + tags
-├── recall/            ← turbopuffer or pgvector adapter
-└── reflect/           ← Session-end summary → long-term + recall write
+
+The example writes:
+
+- `long-term.sqlite`
+- `recall.sqlite`
+- `memory-events.jsonl`
+
+under `SOULFORGE_MEMORY_DIR` or `~/.soulforge/memory-demo`.
+
+## Verify
+
+```bash
+npm run test -- memory
+npm run typecheck
+npm run lint
 ```
 
-Each module will ship as a small, independent library you can copy into an agent's repo. No central runtime.
+## API Sketch
 
-## Open design questions
+```ts
+import {
+  LongTermMemoryStore,
+  ReflectionPipeline,
+  ShortTermMemory,
+  SqliteRecallStore
+} from "./memory/src/index.js";
 
-1. **Recall provider.** turbopuffer (managed, cheap, simple API) vs pgvector (self-hosted, full SQL, more ops). Probably both; user picks.
-2. **Reflection trigger.** Session end, time-based, message-count-based, or a separate cron? The trigger affects what gets remembered.
-3. **Memory eviction.** Long-term storage grows forever without it. Manual? LRU? Relevance-based? TBD when we have a real agent producing real memory volume.
-4. **Soul-driven memory rules.** Should the soul declare what to remember? Or is that a separate config?
+const shortTerm = new ShortTermMemory<string>();
+shortTerm.set("current-url", "https://example.com");
 
-## Why this is a stub today
+const longTerm = new LongTermMemoryStore("./memory.sqlite");
+longTerm.put({
+  key: "preference:tone",
+  value: { tone: "terse" },
+  tags: ["preference"]
+});
 
-Building memory primitives without a real agent to test them against produces shelfware. The plan: ship one agent end-to-end using souls + endpoints, then design memory based on what that agent actually needed.
+const recall = new SqliteRecallStore("./recall.sqlite");
+recall.add({
+  id: "decision-1",
+  text: "Use SQLite for local-first memory persistence."
+});
+
+const reflection = new ReflectionPipeline({ longTerm, recall });
+reflection.run({
+  sessionId: "session-1",
+  transcript: [
+    { role: "user", content: "Remember that repeated URLs should use recall." },
+    { role: "assistant", content: "We decided to query recall before fetching again." }
+  ]
+});
+```
+
+## Recall Backend Rationale
+
+The first recall backend is `HashEmbeddingBackend`, a deterministic local embedder persisted by `SqliteRecallStore`. It is intentionally modest. It proves the lifecycle locally without API keys or managed infrastructure.
+
+The interface boundary is `EmbeddingBackend` plus `SqliteRecallStore.add/query`. A future turbopuffer adapter can replace both the vector persistence and embedding quality while leaving reference agents mostly unchanged.
+
+See `research/2026-05-17-memory-backends.md` for the dependency and migration note.
+
+## Observability
+
+Reflection emits local JSONL telemetry through `JsonlMemoryTelemetrySink`:
+
+```json
+{"traceId":"demo-reflect-001","operation":"memory.reflect","latencyMs":1,"costUsd":0,"ok":true}
+```
+
+Cost is `0` for the local deterministic summarizer. Provider-backed reflection must set real model cost at the call site.
+
+## Known Limits
+
+- The local hash embedder is deterministic and cheap, but it is not a frontier semantic embedding model.
+- Reflection is manual in v2 Track 1. No background lifecycle or automatic session-end hook is provided.
+- Long-term values must be JSON-serializable.

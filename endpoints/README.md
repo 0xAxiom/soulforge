@@ -24,6 +24,7 @@ v1 ships the **x402** template + a working demo. The other kinds are documented 
 | Directory                                            | Template       | Live URL                                       |
 | ---------------------------------------------------- | -------------- | ---------------------------------------------- |
 | [`url-inspector/`](./examples/url-inspector/README.md) | x402-endpoint  | https://x402-endpoint-demo.vercel.app          |
+| [`url-inspector-with-memory/`](./examples/url-inspector-with-memory/README.md) | memory reference | local runnable demo |
 
 ## Structural convention
 
