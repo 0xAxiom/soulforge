@@ -1,4 +1,4 @@
-import type { GoldenCase, GoldenCriterion, ScoreDetail, SoulMetadata } from "../src/types.js";
+import type { EvalResult, GoldenCase, GoldenCriterion, ScoreDetail, SoulMetadata } from "../src/types.js";
 import { DeterministicJudgeModel, type JudgeModel } from "./judge.js";
 
 export const SCORER_VERSION = "score.v1";
@@ -106,4 +106,49 @@ function scoreJudge(
     score: verdict.score,
     reason: `${verdict.judge_soul_version}: ${verdict.reason}`
   };
+}
+
+// Epoch reduction: collapse N runs of the same golden set into one stable result.
+// Addresses stochastic LLM-eval variance — run each golden N times, fold by mean or median.
+// Inspired by Inspect AI's Epochs(count, reducer) pattern.
+export type EpochReducer = "mean" | "median";
+
+export function epochReduce(
+  runs: readonly (readonly EvalResult[])[],
+  reducer: EpochReducer = "mean"
+): readonly EvalResult[] {
+  if (runs.length === 0) return [];
+  if (runs.length === 1) return runs[0]!;
+
+  const goldenCount = runs[0]!.length;
+  const results: EvalResult[] = [];
+
+  for (let i = 0; i < goldenCount; i++) {
+    const epoch = runs.map((run) => run[i]!);
+    const scores = epoch.map((r) => r.score);
+    const reducedScore = reducer === "median" ? median(scores) : mean(scores);
+    const passCount = epoch.filter((r) => r.passed).length;
+    const reducedPassed = passCount > runs.length / 2;
+
+    results.push({
+      ...epoch[0]!,
+      score: reducedScore,
+      passed: reducedPassed,
+      output: `[epoch-reduced n=${String(runs.length)} reducer=${reducer}] ${epoch[0]!.output}`
+    });
+  }
+
+  return results;
+}
+
+function mean(values: readonly number[]): number {
+  if (values.length === 0) return 0;
+  return values.reduce((sum, v) => sum + v, 0) / values.length;
+}
+
+function median(values: readonly number[]): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 1 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
 }

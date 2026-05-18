@@ -73,6 +73,31 @@ The implementation hashes a stable JSON object containing those fields. Changing
 
 The default judge is deterministic and local. It validates the structured judge verdict shape and loads the eval judge soul version, but it does not call a model. Provider-backed judge adapters keep the same output schema.
 
+## Epoch Reduction
+
+LLM-backed evals are stochastic: the same input produces different outputs and different scores across runs. Running a golden once and treating the result as ground truth overfits to sampling variance. `epochReduce()` addresses this.
+
+```typescript
+import { epochReduce } from "./score/index.js";
+
+// Run the same soul three times against the same goldens
+const run1 = runEval({ soulPath: "souls/examples/my-soul.md" }).results;
+const run2 = runEval({ soulPath: "souls/examples/my-soul.md" }).results;
+const run3 = runEval({ soulPath: "souls/examples/my-soul.md" }).results;
+
+// Collapse to a single result set with stable scores
+const stable = epochReduce([run1, run2, run3], "mean");
+// or "median" — more robust to outlier runs
+const robust = epochReduce([run1, run2, run3], "median");
+```
+
+`passed` is determined by majority vote across runs — more than half must pass for the reduced result to pass. This matches how you'd reason about a flaky eval: one pass out of three is suspect; two passes out of three is a real signal.
+
+Use epoch reduction when:
+- Goldens use `llm_judge` with a real model (inherently stochastic)
+- You're comparing two soul versions and the diff is narrow (within noise)
+- A golden is marked flaky but you don't want to delete it — confirm it's actually flaky before removing
+
 ## Trace Format
 
 Trace records are JSONL:
