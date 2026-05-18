@@ -102,6 +102,26 @@ When an AI coding agent receives a request, it should translate the request into
 
 The generator can accelerate this routing, but the agent must still inspect and wire the relevant primitives directly.
 
+## Agent Loop vs. Deterministic Step Graph
+
+Every multi-step soul faces a structural choice: does the model control the sequence, or does the developer?
+
+| Dimension | Agent loop | Deterministic workflow |
+| --- | --- | --- |
+| Who decides next step | The model at runtime | The developer at design time |
+| Correct when | Required steps are unknowable in advance | Required steps are fully known before execution |
+| Failure mode | Model improvises a bad sequence | Typed mismatch halts and surfaces the bug early |
+| Replayability | Hard — model may choose differently on retry | Easy — checkpoint per step, resume from last good state |
+| Soul to use | `tool-planner` or open-ended soul | `deterministic-workflow` soul |
+
+**Prefer deterministic workflows** when: the pipeline maps a known data shape through a known sequence of transformations. Research-fetch → extract → draft → publish is always that sequence; the model should not reorder it.
+
+**Prefer agent loops** when: the next step depends on what the previous step returned in a way that cannot be specified upfront. Debugging an unknown codebase, answering questions across an unfamiliar document corpus, or planning in a dynamic environment all require the model to decide what to do next.
+
+**Typed handoff records** are the key invariant for deterministic workflows. Each step declares its input and output schema. The state flowing between steps is a named record, not an untyped context blob. See `souls/examples/deterministic-workflow-soul.md` for the reference pattern.
+
+**Checkpoint after every step.** A deterministic workflow without checkpoints cannot be debugged or resumed. The checkpoint is a serialized copy of the handoff record after a successful step — enough to restart from that point without re-running earlier steps.
+
 ## What This Is Not
 
 - Not a runtime package.

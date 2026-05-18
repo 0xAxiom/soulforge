@@ -46,8 +46,8 @@
     },
     "planning": {
       "type": "string",
-      "description": "Reasoning posture before tool calls. 'scratchpad' means the agent writes an explicit goal→steps→fallback plan before invoking any tool. Omit for agents that act immediately.",
-      "enum": ["scratchpad", "none"]
+      "description": "Reasoning posture before tool calls. 'scratchpad' means the agent writes an explicit goal→steps→fallback plan before invoking any tool. 'explicit-schema' means the agent declares the full pipeline handoff record and step sequence before execution begins (deterministic workflow pattern). Omit or use 'none' for agents that act immediately.",
+      "enum": ["scratchpad", "explicit-schema", "none"]
     }
   }
 }

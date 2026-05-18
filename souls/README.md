@@ -70,7 +70,7 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 
 | Field | Values | Meaning |
 |-------|--------|---------|
-| `planning` | `scratchpad` \| `none` | Whether this agent writes an explicit plan before tool calls. `scratchpad` agents reason goal → sub-steps → fallback before any tool invocation. See `examples/tool-planner-soul.md`. |
+| `planning` | `scratchpad` \| `explicit-schema` \| `none` | How this agent plans before acting. `scratchpad` = reason goal → sub-steps → fallback before tool calls. `explicit-schema` = declare the full pipeline handoff record and step sequence before execution begins. See `examples/tool-planner-soul.md` and `examples/deterministic-workflow-soul.md`. |
 | `tags` | list of strings | Free-form labels for soul registry/search. |
 
 ## Examples
@@ -78,7 +78,8 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 | File | Pattern | When to copy it |
 |------|---------|-----------------|
 | `examples/starter-soul.md` | Minimal reference soul | Starting point for any new soul |
-| `examples/tool-planner-soul.md` | GOAP planning posture | Agent that calls multiple tools in a single turn and must be traceable |
+| `examples/tool-planner-soul.md` | GOAP planning posture | Agent loop — model decides next step; tasks where step sequence is unknowable upfront |
+| `examples/deterministic-workflow-soul.md` | Typed step graph | Developer-defined sequence with typed handoff records between steps; halts cleanly on shape failures |
 
 ## Current boundary
 
