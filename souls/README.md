@@ -52,6 +52,31 @@ What it remembers, what it forgets, what triggers reflection.
 
 The frontmatter is validated against `schema/soul.schema.json`. The sections under `# Identity` etc. are convention, not strict requirement — but every soul in `examples/` follows the same shape, and tooling assumes it.
 
+### Optional: `# Signature` section
+
+A soul that will be composed into a multi-step pipeline or wired as a step in a deterministic workflow can declare an explicit typed input/output contract in a `# Signature` section placed *before* `# Identity`. The section is markdown — a table for inputs and a table for outputs:
+
+```markdown
+# Signature
+
+**Inputs**
+
+| Field   | Type     | Constraint       | Description          |
+| ------- | -------- | ---------------- | -------------------- |
+| `query` | `string` | 1–500 characters | The search question. |
+
+**Outputs**
+
+| Field     | Type       | Description                         |
+| --------- | ---------- | ----------------------------------- |
+| `results` | `string[]` | Ranked list of relevant passages.   |
+| `sources` | `url[]`    | URLs for each result, same order.   |
+```
+
+The signature is the composition surface: an orchestrator reading two soul files should be able to confirm that the output type of step N satisfies the input type of step N+1 without running either. This pattern is borrowed from DSPy's Signature abstraction — see `research/2026-05-19-dspy.md`.
+
+The `# Signature` section is optional and carries no frontmatter counterpart. It is human-readable documentation, not runtime enforcement. Runtime type checking belongs in the implementation's TypeScript types, not the soul.
+
 ## Validation
 
 A soul's frontmatter is validated against `schema/soul.schema.json` with `souls/validate.mjs`. From the repo root:
@@ -81,6 +106,7 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 | `examples/tool-planner-soul.md` | GOAP planning posture | Agent loop — model decides next step; tasks where step sequence is unknowable upfront |
 | `examples/deterministic-workflow-soul.md` | Typed step graph | Developer-defined sequence with typed handoff records between steps; halts cleanly on shape failures |
 | `examples/approval-gate-soul.md` | Human-in-the-loop gates | Pipeline with declared pause points where a human must decide before the next step runs; includes gate audit trail |
+| `examples/text-classifier-soul.md` | Typed-IO contract | Soul that declares explicit input/output types (# Signature section); copy when the soul will be composed into a pipeline and callers need to know the interface without reading the prose |
 
 ## Current boundary
 
