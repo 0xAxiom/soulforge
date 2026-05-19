@@ -80,6 +80,7 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 | `examples/starter-soul.md` | Minimal reference soul | Starting point for any new soul |
 | `examples/tool-planner-soul.md` | GOAP planning posture | Agent loop — model decides next step; tasks where step sequence is unknowable upfront |
 | `examples/deterministic-workflow-soul.md` | Typed step graph | Developer-defined sequence with typed handoff records between steps; halts cleanly on shape failures |
+| `examples/approval-gate-soul.md` | Human-in-the-loop gates | Pipeline with declared pause points where a human must decide before the next step runs; includes gate audit trail |
 
 ## Current boundary
 
