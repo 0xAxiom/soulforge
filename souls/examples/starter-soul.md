@@ -1,6 +1,6 @@
 ---
 name: starter
-version: 0.1.0
+version: 0.2.0
 provider_hint: anthropic
 scope:
   - Demonstrate the minimum viable soul.
@@ -11,6 +11,7 @@ refuses:
 tags:
   - reference
   - starter
+max_retries: 1
 ---
 
 # Identity

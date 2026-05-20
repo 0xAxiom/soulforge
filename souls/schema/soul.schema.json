@@ -48,6 +48,17 @@
       "type": "string",
       "description": "Reasoning posture before tool calls. 'scratchpad' means the agent writes an explicit goal→steps→fallback plan before invoking any tool. 'explicit-schema' means the agent declares the full pipeline handoff record and step sequence before execution begins (deterministic workflow pattern). Omit or use 'none' for agents that act immediately.",
       "enum": ["scratchpad", "explicit-schema", "none"]
+    },
+    "max_retries": {
+      "type": "integer",
+      "description": "Maximum number of structured-output validation retries per turn. When the model's output fails schema validation the eval harness re-prompts with the validation error, up to this budget. 0 means no retry (fail immediately). Omit to use the harness default (1).",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "output_schema": {
+      "type": "string",
+      "description": "Declares the expected structured output shape. Use a relative path ending in '.json' to reference a JSON Schema file (the eval harness will validate outputs against it as a hard contract). Use '#Section Name' to point to a schema block in the soul's own markdown body. Omit for souls whose output is free-form text.",
+      "minLength": 1
     }
   }
 }
