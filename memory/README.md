@@ -98,6 +98,20 @@ When a user asks for an agent "with memory":
 
 Do not hide memory behind a global singleton. Do not store secrets. Do not describe local hash recall as high-quality semantic retrieval.
 
+## Tier Promotion Triggers
+
+State transitions between tiers happen on explicit conditions. Without declared triggers, agents silently accumulate state rather than synthesize it.
+
+| Trigger | Action |
+| --- | --- |
+| User says "remember this" | `long_term_put` with appropriate tag |
+| Session ends, goal achieved | `recall_add` session summary via reflection |
+| Session ends, goal not achieved | `long_term_put` commitment record under `commitment:<id>` |
+| In-context state block reaches ~80% capacity | Summarize in place; `recall_add` the full prior version |
+| Deterministic workflow step completes | `long_term_put` checkpoint under `checkpoint:<workflow>:<step>` |
+
+See `souls/examples/tiered-memory-soul.md` for the labeled memory block pattern that accompanies this trigger table.
+
 ## Observability
 
 Reflection emits JSONL telemetry through `JsonlMemoryTelemetrySink`:
