@@ -97,6 +97,8 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 |-------|--------|---------|
 | `planning` | `scratchpad` \| `explicit-schema` \| `none` | How this agent plans before acting. `scratchpad` = reason goal → sub-steps → fallback before tool calls. `explicit-schema` = declare the full pipeline handoff record and step sequence before execution begins. See `examples/tool-planner-soul.md` and `examples/deterministic-workflow-soul.md`. |
 | `tags` | list of strings | Free-form labels for soul registry/search. |
+| `max_retries` | integer (default 1) | Retry budget for structured output validation failures. When the agent's output fails the declared schema, it re-prompts with the error up to this many times before returning a best-effort response. Pair with an `## Output Contract` section in the soul body. See `examples/typed-output-soul.md`. |
+| `output_schema` | string reference | Human-readable pointer to where this soul's output contract is defined (inline section, external JSON Schema file, or TypeScript type). Signals to orchestrators that this soul has a machine-readable output shape. |
 
 ## Examples
 
@@ -107,6 +109,7 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 | `examples/deterministic-workflow-soul.md` | Typed step graph | Developer-defined sequence with typed handoff records between steps; halts cleanly on shape failures |
 | `examples/approval-gate-soul.md` | Human-in-the-loop gates | Pipeline with declared pause points where a human must decide before the next step runs; includes gate audit trail |
 | `examples/text-classifier-soul.md` | Typed-IO contract | Soul that declares explicit input/output types (# Signature section); copy when the soul will be composed into a pipeline and callers need to know the interface without reading the prose |
+| `examples/typed-output-soul.md` | Structured output + retry | Soul that declares a machine-readable JSON Schema output contract and a retry budget; copy when the agent must return validated structured data and silent type failures are unacceptable |
 
 ## Current boundary
 
