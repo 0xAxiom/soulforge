@@ -46,8 +46,19 @@
     },
     "planning": {
       "type": "string",
-      "description": "Reasoning posture before tool calls. 'scratchpad' means the agent writes an explicit goal→steps→fallback plan before invoking any tool. 'explicit-schema' means the agent declares the full pipeline handoff record and step sequence before execution begins (deterministic workflow pattern). Omit or use 'none' for agents that act immediately.",
-      "enum": ["scratchpad", "explicit-schema", "none"]
+      "description": "Reasoning posture before tool calls. 'scratchpad' = write explicit goal→steps→fallback before any tool call. 'explicit-schema' = declare the full pipeline handoff record and step sequence before execution (deterministic workflow pattern). 'interval' = pause every N action steps to update fact list and re-examine plan (pair with planning_interval_steps). Omit or use 'none' for agents that act immediately.",
+      "enum": ["scratchpad", "explicit-schema", "interval", "none"]
+    },
+    "planning_interval_steps": {
+      "type": "integer",
+      "description": "Used when planning is 'interval'. Number of action steps between mid-run planning checks. Default: 3.",
+      "minimum": 1,
+      "maximum": 20
+    },
+    "action_format": {
+      "type": "string",
+      "description": "The format the agent uses to express tool calls. 'code' = agent writes executable Python snippets to orchestrate tools. 'json' = agent emits structured JSON tool-call objects (standard ReAct). 'text' = free-form prose actions. Default: 'json'.",
+      "enum": ["code", "json", "text"]
     },
     "max_retries": {
       "type": "integer",

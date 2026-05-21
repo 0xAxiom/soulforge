@@ -95,7 +95,9 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 
 | Field | Values | Meaning |
 |-------|--------|---------|
-| `planning` | `scratchpad` \| `explicit-schema` \| `none` | How this agent plans before acting. `scratchpad` = reason goal → sub-steps → fallback before tool calls. `explicit-schema` = declare the full pipeline handoff record and step sequence before execution begins. See `examples/tool-planner-soul.md` and `examples/deterministic-workflow-soul.md`. |
+| `planning` | `scratchpad` \| `explicit-schema` \| `interval` \| `none` | How this agent plans before acting. `scratchpad` = reason goal → sub-steps → fallback before tool calls. `explicit-schema` = declare the full pipeline handoff record and step sequence before execution begins. `interval` = pause periodically mid-run to update a fact list and re-examine next steps (pair with `planning_interval_steps`). See `examples/tool-planner-soul.md`, `examples/deterministic-workflow-soul.md`, and `examples/code-orchestrator-soul.md`. |
+| `planning_interval_steps` | integer | Used when `planning: interval`. Number of action steps between planning checks. Default: 3. |
+| `action_format` | `code` \| `json` \| `text` | Declares the agent's action format. `code` = agent writes executable Python snippets to orchestrate tools. `json` = agent emits structured JSON tool-call objects. `text` = free-form prose actions. Default: `json`. See `examples/code-orchestrator-soul.md` for the `code` pattern. |
 | `tags` | list of strings | Free-form labels for soul registry/search. |
 | `max_retries` | integer (default 1) | Retry budget for structured output validation failures. When the agent's output fails the declared schema, it re-prompts with the error up to this many times before returning a best-effort response. Pair with an `## Output Contract` section in the soul body. See `examples/typed-output-soul.md`. |
 | `output_schema` | string reference | Human-readable pointer to where this soul's output contract is defined (inline section, external JSON Schema file, or TypeScript type). Signals to orchestrators that this soul has a machine-readable output shape. |
@@ -110,6 +112,7 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 | `examples/approval-gate-soul.md` | Human-in-the-loop gates | Pipeline with declared pause points where a human must decide before the next step runs; includes gate audit trail |
 | `examples/text-classifier-soul.md` | Typed-IO contract | Soul that declares explicit input/output types (# Signature section); copy when the soul will be composed into a pipeline and callers need to know the interface without reading the prose |
 | `examples/typed-output-soul.md` | Structured output + retry | Soul that declares a machine-readable JSON Schema output contract and a retry budget; copy when the agent must return validated structured data and silent type failures are unacceptable |
+| `examples/code-orchestrator-soul.md` | Code-action multi-step agent | Agent writes Python snippets to orchestrate tools (loops, conditionals, variable storage) rather than JSON tool-call objects; includes periodic planning check; copy when task requires composing tool outputs mid-step or iterating over variable-length lists |
 
 ## Current boundary
 
