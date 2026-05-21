@@ -101,6 +101,9 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 | `tags` | list of strings | Free-form labels for soul registry/search. |
 | `max_retries` | integer (default 1) | Retry budget for structured output validation failures. When the agent's output fails the declared schema, it re-prompts with the error up to this many times before returning a best-effort response. Pair with an `## Output Contract` section in the soul body. See `examples/typed-output-soul.md`. |
 | `output_schema` | string reference | Human-readable pointer to where this soul's output contract is defined (inline section, external JSON Schema file, or TypeScript type). Signals to orchestrators that this soul has a machine-readable output shape. |
+| `routing` | `explicit` \| `rule-based` | How this agent selects a handoff destination. `explicit` = model picks from registered handoff tools by description. `rule-based` = deterministic rules pick the destination. Omit for souls that do not hand off. See `examples/handoff-router-soul.md`. |
+| `context_handoff` | `summary_only` \| `full_history` \| `filtered` \| `none` | What context this soul passes when handing off (or expects to receive). `summary_only` = structured briefing only, no raw history. `filtered` = caller applies an input filter to strip irrelevant turns. See `examples/handoff-router-soul.md`. |
+| `entry_guardrail` | `blocking` \| `parallel` \| `none` | Validation posture before routing or execution. `blocking` = guardrail completes before any LLM call (prevents token spend on bad requests). `parallel` = guardrail runs concurrently (lower latency, tokens may be consumed before a block). Default: `none`. |
 
 ## Examples
 
@@ -113,6 +116,7 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 | `examples/text-classifier-soul.md` | Typed-IO contract | Soul that declares explicit input/output types (# Signature section); copy when the soul will be composed into a pipeline and callers need to know the interface without reading the prose |
 | `examples/typed-output-soul.md` | Structured output + retry | Soul that declares a machine-readable JSON Schema output contract and a retry budget; copy when the agent must return validated structured data and silent type failures are unacceptable |
 | `examples/code-orchestrator-soul.md` | Code-action multi-step agent | Agent writes Python snippets to orchestrate tools (loops, conditionals, variable storage) rather than JSON tool-call objects; includes periodic planning check; copy when task requires composing tool outputs mid-step or iterating over variable-length lists |
+| `examples/handoff-router-soul.md` | Triage-and-handoff coordinator | Classifies intent, builds a structured briefing, and routes to a specialist soul — never handles domain tasks itself; includes entry guardrail and context hygiene policy; copy when multiple specialist agents exist and routing should be logged and traceable |
 
 ## Current boundary
 

@@ -70,6 +70,21 @@
       "type": "string",
       "description": "Declares the expected structured output shape. Use a relative path ending in '.json' to reference a JSON Schema file (the eval harness will validate outputs against it as a hard contract). Use '#Section Name' to point to a schema block in the soul's own markdown body. Omit for souls whose output is free-form text.",
       "minLength": 1
+    },
+    "routing": {
+      "type": "string",
+      "description": "How this agent selects a handoff destination. 'explicit' = model chooses from registered handoff tools by description (default). 'rule-based' = deterministic rules (e.g. regex on intent label) pick the destination, no model call needed. Omit for souls that do not hand off.",
+      "enum": ["explicit", "rule-based"]
+    },
+    "context_handoff": {
+      "type": "string",
+      "description": "How much context this soul expects to receive when another agent hands off to it — or what it passes when it hands off. 'summary_only' = a structured briefing only, no raw history. 'full_history' = full conversation transcript. 'filtered' = caller applies an input filter to strip irrelevant turns. 'none' = no handoff in or out. Omit for souls that do not participate in multi-agent handoffs.",
+      "enum": ["summary_only", "full_history", "filtered", "none"]
+    },
+    "entry_guardrail": {
+      "type": "string",
+      "description": "Validation posture at agent entry before routing or execution begins. 'blocking' = guardrail completes before any LLM call fires (prevents token spend on bad requests). 'parallel' = guardrail runs concurrently with agent execution (lower latency but tokens may be consumed before a block). 'none' = no entry guardrail. Omit to default to 'none'.",
+      "enum": ["blocking", "parallel", "none"]
     }
   }
 }

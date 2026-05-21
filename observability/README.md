@@ -45,6 +45,39 @@ new CostLedger(sink).record({ trace_id: "trace-1", name: "x402.payment", cost_us
 new LatencyRecorder(sink).record({ trace_id: "trace-1", name: "agent.turn", duration_ms: 42 });
 ```
 
+## Span hierarchy
+
+Events should nest under a common `trace_id` using `parent_span_id` for multi-step runs:
+
+```
+trace (Runner.run)
+  └── agent_span (each agent that runs)
+        ├── generation_span (each LLM call)
+        └── tool_span (each tool invocation)
+              └── handoff_span | guardrail_span (when applicable)
+```
+
+Use these controlled values for `kind`: `trace`, `agent`, `generation`, `tool`, `handoff`, `guardrail`. This vocabulary makes JSONL output compatible with standard trace viewers without requiring a managed backend.
+
+## Adding a sink
+
+The `JsonlObservabilitySink` is the default. To ship events elsewhere (Langfuse, Datadog, a webhook), implement the `SinkProcessor` interface:
+
+```ts
+interface SinkProcessor {
+  onEvent(event: ObsEvent): void | Promise<void>;
+  flush(): Promise<void>;
+}
+```
+
+Pass your processor at construction time or replace the default:
+
+```ts
+const sink = new JsonlObservabilitySink({ processors: [new MyDatadogProcessor()] });
+```
+
+Events still write to JSONL; processors receive a copy. To disable JSONL and use only your processor, set `{ jsonl: false }`.
+
 ## Verify
 
 ```bash
