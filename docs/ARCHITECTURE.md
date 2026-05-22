@@ -122,6 +122,18 @@ Every multi-step soul faces a structural choice: does the model control the sequ
 
 **Checkpoint after every step.** A deterministic workflow without checkpoints cannot be debugged or resumed. The checkpoint is a serialized copy of the handoff record after a successful step — enough to restart from that point without re-running earlier steps.
 
+## Colocation Principle
+
+The most important structural norm in SoulForge is that a soul file should be self-describing: a reader should understand what the agent does, what tools it uses, what output it produces, and under what conditions it refuses — all from a single document.
+
+This means:
+
+- **`output_schema: "#Section"`** — prefer embedding the output schema in the soul file as a fenced JSON block and pointing to it with a fragment reference. A separate `.json` schema file is acceptable for schemas shared across multiple souls, but the default is colocation.
+- **Tools declared in the soul body** — the `# Tools` section lists every tool the agent may call, what it does, and when. An endpoint or harness may provide additional tools; the soul should still list them explicitly so the document is self-contained.
+- **Retry budget in frontmatter** — `max_retries` on the soul, not in a harness config file, so the structured-output contract and the failure budget are readable together.
+
+The payoff: a developer or AI agent can read one file and understand the full contract. Nothing is wired up elsewhere. This is deliberately different from framework patterns that declare tools, schemas, and policies in separate configs and wire them at runtime.
+
 ## What This Is Not
 
 - Not a runtime package.
@@ -129,5 +141,6 @@ Every multi-step soul faces a structural choice: does the model control the sequ
 - Not a hidden orchestrator.
 - Not a LangChain, AutoGPT, or plugin-runtime clone.
 - Not a place for generated opaque soul formats.
+- Not a graph execution engine — if you need a state machine with edges, you have a deterministic workflow problem, not a soul problem. Use `deterministic-workflow-soul.md` and typed handoff records.
 
 The bet: agents should be easy to create, hard to create incorrectly.
