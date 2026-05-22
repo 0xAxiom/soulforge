@@ -73,8 +73,17 @@
     },
     "routing": {
       "type": "string",
-      "description": "How this agent selects a handoff destination. 'explicit' = model chooses from registered handoff tools by description (default). 'rule-based' = deterministic rules (e.g. regex on intent label) pick the destination, no model call needed. Omit for souls that do not hand off.",
-      "enum": ["explicit", "rule-based"]
+      "description": "How this agent selects a downstream destination. 'explicit' = model chooses from registered handoff tools by description (default). 'rule-based' = deterministic rules (e.g. regex on intent label) pick the destination, no model call needed. 'pub-sub' = agent publishes typed events to topics; subscribers self-select at runtime (no explicit routing). Omit for souls that do not route or dispatch.",
+      "enum": ["explicit", "rule-based", "pub-sub"]
+    },
+    "coupling": {
+      "type": "string",
+      "description": "Whether the agent's downstream targets are enumerated at authoring time ('tight') or discovered at runtime via subscriptions ('loose'). Only meaningful when routing is set.",
+      "enum": ["tight", "loose"]
+    },
+    "fan_out": {
+      "type": "boolean",
+      "description": "When true, a single published event may reach multiple downstream handlers concurrently. Pair with routing: pub-sub."
     },
     "context_handoff": {
       "type": "string",
