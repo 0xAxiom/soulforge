@@ -144,6 +144,25 @@ Provider and model metadata belongs in memory provenance or adapter config, not 
 
 The backend boundary is `EmbeddingBackend` plus `SqliteRecallStore.add/query`. Higher-quality semantic backends should implement that boundary without changing souls or agent endpoint contracts.
 
+## Composite Recall Scoring
+
+When a real embedding backend is wired in, raw cosine similarity is not the right ranking signal. Recall results should be ranked by a composite of three factors:
+
+```
+score = w_sem * similarity + w_rec * recency_decay(age_ms) + w_imp * importance
+```
+
+Where:
+- `similarity` — cosine similarity between query embedding and stored embedding (0–1)
+- `recency_decay(age_ms)` — exponential decay: `exp(-λ * age_ms / half_life_ms)`. A memory from one day ago should score higher than the same memory from one month ago.
+- `importance` — a scalar (0–1) assigned by the agent or reflection pipeline at write time, reflecting how consequential the memory was
+
+Suggested starting weights: `w_sem = 0.6, w_rec = 0.25, w_imp = 0.15`. Tune per agent type — a planner soul benefits from heavier recency weight; an archivist soul weights importance more.
+
+The `HashEmbeddingBackend` skips this formula (hash similarity is not meaningful), but any production `EmbeddingBackend` implementation should accept these weights and compute the composite. The `importance` field should be added to the recall record schema before plugging in a real backend.
+
+This pattern is drawn from CrewAI's v2 unified memory system (research: `research/2026-05-22-crewai.md`).
+
 ## Failure Behavior
 
 - Missing database parent directories throw before SQLite opens.
