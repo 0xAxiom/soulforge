@@ -122,6 +122,22 @@ Every multi-step soul faces a structural choice: does the model control the sequ
 
 **Checkpoint after every step.** A deterministic workflow without checkpoints cannot be debugged or resumed. The checkpoint is a serialized copy of the handoff record after a successful step — enough to restart from that point without re-running earlier steps.
 
+## Multi-Agent Delegation Modes
+
+When one soul delegates to another, there are three structurally distinct modes. Choosing the wrong one produces ordering bugs, latency waste, or untraceable state. Name the mode explicitly in the orchestrator soul's plan block before executing.
+
+| Mode | When to use | How context moves | Key risk |
+| --- | --- | --- | --- |
+| **Sequential dispatch** | Stage N needs stage N-1's output as input | Explicit briefing passed as structured input to each specialist | Latency — stages cannot overlap |
+| **Parallel dispatch** | Specialist inputs are independent; latency matters | Concurrent dispatch; results collected into a keyed dict after all complete | Ordering dependency hidden at design time causes incorrect merges |
+| **Shared-state pipeline** | Specialists build incrementally on each other's outputs without needing a coordinator to repackage between calls | Specialists read/write a shared state object; execution order declared upfront | State mutation order is invisible — specialist B may see a stale value if A has not yet written |
+
+Reference implementation: `souls/examples/workflow-orchestrator-soul.md` demonstrates all three modes within a single orchestration pattern. The soul's `# Delegation Modes` section specifies when each mode is correct and what state discipline it requires.
+
+**Default to sequential dispatch** unless you have measured the latency cost and confirmed that no parallel specialist reads a value written by another parallel specialist. Parallel dispatch bugs are silent; sequential dispatch bugs surface immediately as empty inputs.
+
+**Shared-state pipeline** is only appropriate inside a session (state is ephemeral). For stateless HTTP endpoints, pass outputs explicitly between calls — do not rely on shared mutable state as a coordination mechanism.
+
 ## Colocation Principle
 
 The most important structural norm in SoulForge is that a soul file should be self-describing: a reader should understand what the agent does, what tools it uses, what output it produces, and under what conditions it refuses — all from a single document.
