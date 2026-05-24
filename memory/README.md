@@ -138,6 +138,23 @@ Long-term and recall records persist:
 
 Provider and model metadata belongs in memory provenance or adapter config, not in the soul schema.
 
+## Knowledge vs Memory
+
+These two primitives answer different questions and must not be conflated:
+
+| Concept | Who populates it | Changes between sessions? | Soulforge primitive |
+| --- | --- | --- | --- |
+| **Knowledge** | The operator (curated corpus: docs, policies, reference material) | No — static unless the operator updates it | Not a memory primitive — implement as a retrieval tool call |
+| **Memory** | The agent (facts from user interactions) | Yes — accumulates over time | `long-term.ts`, `recall.ts`, `reflect.ts` |
+
+**Knowledge retrieval is a tool call, not a memory query.** If your agent needs to answer from a static corpus (product documentation, legal policies, a research paper set), the right pattern is a `knowledge_query` tool that hits a vector store or search index maintained by the operator. Do not use `SqliteRecallStore` for this — it is designed for facts the agent accumulated from prior sessions, not for operator-curated content.
+
+The practical difference: `SqliteRecallStore` is written by `ReflectionPipeline` from session transcripts. A knowledge store is written by an ingestion pipeline owned by the operator, not by the agent. If you find yourself writing to the knowledge store from agent code, you're mixing the concerns.
+
+See `souls/examples/knowledge-grounded-soul.md` for a reference soul that maintains this boundary explicitly, including the required query order (knowledge → memory → reasoning) and source attribution in structured output.
+
+This distinction is drawn from Agno's explicit Knowledge/Memory/Storage primitive separation (research: `research/2026-05-23-agno.md`).
+
 ## Recall Backend Boundary
 
 `HashEmbeddingBackend` is deterministic replay infrastructure. It proves lifecycle, persistence, and interface shape locally without API keys. It is not high-quality semantic retrieval.
