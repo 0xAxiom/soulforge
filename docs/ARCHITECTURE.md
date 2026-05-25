@@ -177,6 +177,41 @@ This means:
 
 The payoff: a developer or AI agent can read one file and understand the full contract. Nothing is wired up elsewhere. This is deliberately different from framework patterns that declare tools, schemas, and policies in separate configs and wire them at runtime.
 
+## Loop Termination Policy
+
+Every soul that runs a multi-step loop needs an explicit stop condition. "The model decides when it's done" is not a stop condition — it is a budget leak and a reliability gap.
+
+SoulForge names two complementary stop mechanisms:
+
+**1. `loop_stop` frontmatter field — named exit predicates**
+
+A soul may declare a list of named exit predicates in frontmatter:
+
+```yaml
+loop_stop:
+  - evaluation_passed
+  - retry_budget_exhausted
+  - tool_called:finalAnswer
+  - step_count:20
+```
+
+Each predicate is checked after every step. The loop stops on the first predicate that matches. Predicates are OR-composed — the loop does not require all to fire. The soul body must document what each predicate means and when it can become true.
+
+This is different from `max_retries`, which is a schema-validation retry budget (typed output souls only). `loop_stop` is for any multi-step loop — quality-check loops, tool-planning loops, search loops.
+
+**2. Explicit loop contract in the soul body**
+
+For souls with a meaningful loop (more than one step), declare a `# Loop Contract` section that lists:
+
+- The sequence of operations per cycle (e.g., generate → evaluate → check → retry)
+- The exit conditions, in priority order
+- What state is carried forward across cycles (context, critique, draft history)
+- What happens when the budget is exhausted (return best-effort, surface the reason)
+
+The loop contract is human-readable policy. It does not enforce itself. The implementation is responsible for honoring it. The contract's value is auditability: a reviewer should be able to read the soul and predict exactly when the loop stops.
+
+**Reference:** `souls/examples/evaluator-optimizer-soul.md` — demonstrates both a `loop_stop` frontmatter declaration and a `# Loop Contract` section for a generator→evaluator quality loop. See also `souls/examples/tool-planner-soul.md` for the open-ended case where the model controls step selection but the loop still has a named exit budget.
+
 ## What This Is Not
 
 - Not a runtime package.

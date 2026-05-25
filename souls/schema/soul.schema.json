@@ -94,6 +94,18 @@
       "type": "string",
       "description": "Validation posture at agent entry before routing or execution begins. 'blocking' = guardrail completes before any LLM call fires (prevents token spend on bad requests). 'parallel' = guardrail runs concurrently with agent execution (lower latency but tokens may be consumed before a block). 'none' = no entry guardrail. Omit to default to 'none'.",
       "enum": ["blocking", "parallel", "none"]
+    },
+    "loop_stop": {
+      "type": "array",
+      "description": "Named exit predicates for multi-step loops. The loop stops when the first predicate matches (OR-composed). Each string is a predicate identifier, optionally with a colon-separated argument (e.g. 'step_count:20', 'tool_called:finalAnswer', 'evaluation_passed'). The soul body must document what each predicate means and when it fires. Omit for souls that do not run a multi-step loop.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*(:[a-zA-Z0-9_.-]+)?$",
+        "minLength": 3,
+        "maxLength": 64
+      },
+      "minItems": 1,
+      "maxItems": 8
     }
   }
 }
