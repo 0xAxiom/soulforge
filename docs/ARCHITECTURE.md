@@ -138,6 +138,33 @@ Reference implementation: `souls/examples/workflow-orchestrator-soul.md` demonst
 
 **Shared-state pipeline** is only appropriate inside a session (state is ephemeral). For stateless HTTP endpoints, pass outputs explicitly between calls — do not rely on shared mutable state as a coordination mechanism.
 
+## Execution Filter Pattern
+
+Some safety, observability, and policy requirements are horizontal — they apply to every tool call, not to one specific agent. Baking these checks into each soul's body produces repetitive policy, inconsistent enforcement, and no single audit point.
+
+The execution filter pattern solves this with a wrapper soul that intercepts at two explicit points around any tool invocation:
+
+- **`before_tool_call`** — synchronous, blocking. Validates inputs against policy (spending caps, domain allowlists, PII detection, rate limits) before any side effect fires. If a check fails, execution stops here.
+- **`after_tool_call`** — runs after the tool completes. Captures cost, latency, and output quality signals; redacts PII if found in outputs; emits traces to both observability and eval.
+
+This maps directly to soulforge's primitive boundary: the filter soul owns *interception policy*; the downstream agent soul owns *task policy*. Neither modifies the other.
+
+When to use a filter soul vs inline soul logic:
+
+| Concern | Where it belongs |
+| --- | --- |
+| Check applies to one tool in one agent | Inline in that agent's soul `# Tools` section |
+| Check applies to any tool call across multiple agents | Execution filter soul |
+| Check requires blocking before execution | `before_tool_call` in filter |
+| Audit/capture needed after execution | `after_tool_call` in filter |
+| Transform or rewrite outputs | Separate critic/reviewer soul, not a filter |
+
+**Filter checks must be deterministic.** Pre-call checks run synchronously before the tool fires; they must be rule evaluation (pattern match, cap comparison, allowlist lookup), not LLM calls. LLM-as-judge runs async post-call as an eval concern, not a safety gate.
+
+**Every intercept writes an event.** A filter that runs silently provides false confidence. The obs event is the filter's output — not optional, not async buffered. Passed calls and blocked calls both write. Blocked calls log the reason category, never the triggering payload.
+
+Reference implementation: `souls/examples/execution-filter-soul.md`.
+
 ## Colocation Principle
 
 The most important structural norm in SoulForge is that a soul file should be self-describing: a reader should understand what the agent does, what tools it uses, what output it produces, and under what conditions it refuses — all from a single document.

@@ -120,6 +120,7 @@ Beyond the required fields, souls can declare behavioral hints in frontmatter th
 | `examples/code-orchestrator-soul.md` | Code-action multi-step agent | Agent writes Python snippets to orchestrate tools (loops, conditionals, variable storage) rather than JSON tool-call objects; includes periodic planning check; copy when task requires composing tool outputs mid-step or iterating over variable-length lists |
 | `examples/handoff-router-soul.md` | Triage-and-handoff coordinator | Classifies intent, builds a structured briefing, and routes to a specialist soul — never handles domain tasks itself; includes entry guardrail and context hygiene policy; copy when multiple specialist agents exist and routing should be logged and traceable |
 | `examples/event-dispatcher-soul.md` | Pub-sub event dispatcher | Publishes typed events to named topics; downstream handlers self-subscribe without the dispatcher knowing them; fan-out by default; inspired by AutoGen's actor model; copy when the handler population is dynamic or a new subscriber should not require changing the dispatcher |
+| `examples/execution-filter-soul.md` | Execution filter / middleware | Wraps another agent's tool calls with `before_tool_call` (blocking pre-checks) and `after_tool_call` (cost, PII, eval capture) intercepts; inspired by Semantic Kernel's filter chain; copy when safety and observability requirements are horizontal across multiple agents and you need a single audit point |
 
 ## Current boundary
 
