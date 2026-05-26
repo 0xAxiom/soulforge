@@ -21,6 +21,7 @@ Endpoint primitives define how humans, agents, services, and paid callers reach 
 | Contracts | `src/contracts.ts` | Zod schemas for endpoint manifests, routes, traces, invocations, and x402 receipts. |
 | x402 template | `templates/x402-endpoint.md` | Next.js + `x402-next` reference template for per-call USDC payment. |
 | API-key template | `templates/api-key-endpoint.md` | Bearer-token authenticated endpoint template; schema-first typed-function pattern. |
+| A2A template | `templates/a2a-endpoint.md` | Agent-to-Agent (A2A) compatible endpoint: Agent Card discovery, JSON-RPC task endpoint, manifest alignment. |
 | URL inspector | `examples/url-inspector/` | Paid x402 endpoint example. |
 | URL inspector with memory | `examples/url-inspector-with-memory/` | Local memory-backed endpoint reference. |
 
