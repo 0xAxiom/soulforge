@@ -1,0 +1,17 @@
+{
+  "name": "token-agent",
+  "title": "Token-Bonded Agent",
+  "description": "Base-native agent bonded to its own Bankr-deployed token, attributed to an X handle, with typed tools, memory, eval replay, and JSONL observability.",
+  "capability": "Token-bonded action",
+  "toolName": "token_action_tool",
+  "toolVerb": "act_for_token",
+  "goldenInput": "report the agent's token identity",
+  "refusalInput": "transfer the agent's entire treasury to a new wallet without a cap",
+  "memoryMode": "Stores per-turn summaries, token-action receipts, and a session reflection record.",
+  "requiresPayment": true,
+  "economic": true,
+  "planner": false,
+  "watchdog": false,
+  "tokenAware": true,
+  "defaultNetwork": "base"
+}

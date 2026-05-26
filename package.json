@@ -23,6 +23,7 @@
     "url-inspector-memory:example": "tsx endpoints/examples/url-inspector-with-memory/src/demo.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "better-sqlite3": "^12.10.0",

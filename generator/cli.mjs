@@ -111,6 +111,7 @@ function buildContext(name, template) {
     economic: Boolean(template.economic),
     planner: Boolean(template.planner),
     watchdog: Boolean(template.watchdog),
+    tokenAware: Boolean(template.tokenAware),
     defaultNetwork: template.defaultNetwork ?? "base-sepolia"
   };
 }
@@ -213,7 +214,10 @@ function renderEnv(ctx) {
   const bankr = ctx.economic
     ? `\n# Bankr is optional; dry-run works without this key.\nBANKR_API_KEY=\nBANKR_API_URL=https://api.bankr.bot\n`
     : "";
-  return `SOULFORGE_OBS_DIR=.soulforge/obs\nAGENT_DRY_RUN=true\n${payment}${bankr}`;
+  const tokenIdentity = ctx.tokenAware
+    ? `\n# Agent token identity (Base mainnet). Populated automatically when launched via the soulforge-launch endpoint; leave blank for pre-launch dry-run.\nAGENT_TOKEN_ADDRESS=\nAGENT_TOKEN_SYMBOL=\nAGENT_TWITTER_HANDLE=\n`
+    : "";
+  return `SOULFORGE_OBS_DIR=.soulforge/obs\nAGENT_DRY_RUN=true\n${payment}${bankr}${tokenIdentity}`;
 }
 
 function renderReadme(ctx) {
@@ -278,7 +282,9 @@ ${ctx.planner ? "planning: scratchpad\n" : ""}
 
 # Identity
 
-${ctx.title} is a SoulForge agent scaffold optimized for AI-assisted extension.
+${ctx.title} is a SoulForge agent scaffold optimized for AI-assisted extension.${ctx.tokenAware ? `
+
+The agent is bonded to a Base-native token at \`AGENT_TOKEN_ADDRESS\` deployed via Bankr Bot and attributed on X to \`AGENT_TWITTER_HANDLE\`. Treat the token address as part of the agent's identity: include it in receipts, observability, and outward-facing replies where relevant.` : ""}
 
 # Voice
 

@@ -9,6 +9,7 @@ Optional Bankr primitives for programmable finance agents. This module is isolat
 | `price` | token, network, dry-run flag | typed price result or Bankr job receipt | optional Bankr API request | prompt and receipt are deterministic records |
 | `portfolio` | wallet, network, dry-run flag | typed portfolio result or Bankr job receipt | optional Bankr API request | wallet/network/request metadata preserved |
 | `swap` | from token, to token, amount, cap, idempotency key, dry-run/live | typed swap receipt | dry-run by default; live submits only with explicit guardrails | idempotency key and receipt make retries auditable |
+| `deployToken` | name, symbol, feeRecipient (`wallet`/`x`/`farcaster`/`ens`), optional metadata, dry-run/live, idempotency key | typed deploy receipt with `tokenAddress` and `txHash` | dry-run synthesizes a receipt locally; live POSTs to `/token-launches/deploy` (Base only, Doppler v4 — 100B supply, non-mintable, 1.2% swap fee fixed by Bankr) | prompt summary, idempotency key, token address, and tx hash persist as a receipt |
 
 ## Environment
 
@@ -20,9 +21,10 @@ Optional Bankr primitives for programmable finance agents. This module is isolat
 
 ## Safety defaults
 
-- Dry-run is the default for swaps.
+- Dry-run is the default for swaps and deploys.
 - Live swaps require `live: true`, `dryRun: false`, a positive `spendingCapUsd`, and an `idempotencyKey`.
-- Networks are restricted to `base` and `base-sepolia`.
+- Live deploys require `live: true`, `dryRun: false`, `network: "base"`, and an `idempotencyKey` of at least 8 characters. Bankr has no native idempotency field — callers are expected to dedupe locally on this key before retrying. Rate limits are 20 deploys per 24h on a partner key.
+- Swap networks are restricted to `base` and `base-sepolia`. Deploys are Base mainnet only (Sepolia is not supported by `/token-launches/deploy`).
 - Direct sign and submit APIs are not exposed here.
 - The module emits observability events for successful calls and errors.
 
@@ -51,4 +53,5 @@ npm run test -- tools/bankr
 npm run typecheck
 npm run lint
 npx tsx tools/bankr/examples/dry-run-swap.ts
+npx tsx tools/bankr/examples/dry-run-deploy.ts
 ```

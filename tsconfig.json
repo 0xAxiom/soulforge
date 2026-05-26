@@ -22,6 +22,7 @@
     "tools/**/*.ts",
     "endpoints/src/**/*.ts",
     "endpoints/examples/url-inspector-with-memory/**/*.ts",
+    "endpoints/examples/soulforge-mcp-server/**/*.ts",
     "vitest.config.ts"
   ],
   "exclude": ["node_modules"]
