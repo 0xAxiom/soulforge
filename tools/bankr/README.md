@@ -2,6 +2,17 @@
 
 Optional Bankr primitives for programmable finance agents. This module is isolated from souls and from the rest of SoulForge: agents import it only when they need Bankr-backed reads, quotes, simulations, or live swaps.
 
+## Network Scope
+
+| Operation | Supported networks |
+| --- | --- |
+| `price` | `base`, `base-sepolia` |
+| `portfolio` | `base`, `base-sepolia` |
+| `swap` | `base`, `base-sepolia` |
+| `deployToken` | `base` only (Sepolia not supported by `/token-launches/deploy`) |
+
+Callers should filter tool availability by network before exposing this module to an agent. See `souls/examples/onchain-action-soul.md` for the reference pattern — never call a tool on a network it doesn't declare. A tool invoked on an unsupported network will fail at the API layer; filtering at the capability layer fails faster and more clearly.
+
 ## Contract
 
 | Operation | Inputs | Outputs | Side effects | Replay guarantee |
