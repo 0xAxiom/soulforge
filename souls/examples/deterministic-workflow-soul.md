@@ -88,6 +88,26 @@ Each step reads from `data`, writes its result back to `data` under its own key,
 - **Step receipts** log each step's input, output, and timestamp. These are the raw material for replay and debugging.
 - **Pipeline summary** written at completion: steps run, steps skipped (if any with user approval), final `data` state, total wall time.
 
+## Checkpoint Schema
+
+Every step checkpoint must be a self-contained record. The minimum viable checkpoint — enough to resume from any step without re-running prior steps:
+
+```json
+{
+  "pipeline_id": "string (idempotency key for this pipeline run)",
+  "step_name": "string (name of the completed step)",
+  "step_index": "number (0-based, to detect sequence drift on resume)",
+  "output_event_type": "string (the name of the handoff record key written by this step)",
+  "output_payload": "object (the validated output of this step, matches the handoff record schema)",
+  "completed_at": "ISO 8601 timestamp",
+  "wall_time_ms": "number"
+}
+```
+
+On resume, the runner loads the most recent checkpoint, reads `step_index + 1` to determine which step runs next, and passes `output_payload` as the input to that step. The resume operation must not re-run the completed step — `pipeline_id` is the idempotency gate that prevents double-execution.
+
+This schema is intentionally minimal. It does not store the full handoff record state — only this step's output. The full state can be reconstructed by replaying checkpoints in `step_index` order. If a full-state snapshot is preferred, add a `full_handoff_snapshot` field — but treat it as a cache, not the source of truth. The ordered checkpoint sequence is always authoritative.
+
 # Example Pipeline Skeleton
 
 ```

@@ -212,6 +212,41 @@ The loop contract is human-readable policy. It does not enforce itself. The impl
 
 **Reference:** `souls/examples/evaluator-optimizer-soul.md` — demonstrates both a `loop_stop` frontmatter declaration and a `# Loop Contract` section for a generator→evaluator quality loop. See also `souls/examples/tool-planner-soul.md` for the open-ended case where the model controls step selection but the loop still has a named exit budget.
 
+## Type-Declared Event Contracts
+
+When a pipeline has multiple steps handled by different souls, an orchestrator needs to know which soul handles which event type. There are two ways to solve this:
+
+| Approach | How routing works | When to use |
+| --- | --- | --- |
+| **Name-dispatch** | Orchestrator has a table: `event_type → soul_name`. Explicit, auditable. | Fixed pipelines where the set of steps is known at design time. |
+| **Type-declared** | Each soul declares `input_event_types` and `output_event_types` in frontmatter. Orchestrator discovers routing by reading soul frontmatter. | Extensible pipelines where new souls can be added without editing a routing config. |
+
+The type-declared approach is inspired by LlamaIndex Workflows, where `@step`-decorated functions register themselves by their Python type signatures. The framework builds the routing graph automatically from those signatures. The same idea applies in soulforge without Python: a soul can declare its event types in frontmatter, and a coding agent or orchestrator can wire the pipeline by reading those declarations.
+
+**When to use type-declared routing:**
+- A pipeline is designed to be extended by adding new souls without modifying existing ones.
+- The orchestrator is a coding agent (not a human) that will discover souls by scanning a folder.
+- Different teams own different souls and should not need to coordinate on a central routing config.
+
+**When to use name-dispatch:**
+- The pipeline sequence is fixed and must be auditable from a single routing document.
+- Tracing a request through the pipeline requires knowing exactly which soul handled each step.
+- The routing logic has conditional branches (if step A returned X, go to B; if Y, go to C) — this is hard to infer from types alone.
+
+**Frontmatter convention for type-declared souls:**
+
+```yaml
+input_event_types:
+  - DocumentExtracted       # the soul handles this event type
+output_event_types:
+  - DocumentSummarized      # the soul emits this event type on success
+  - DocumentFailed          # the soul emits this event type on failure
+```
+
+Event type names should be PascalCase, globally unique within the pipeline, and map to a schema defined in the pipeline's event registry (a shared JSON file, not embedded per-soul). The soul's `# Handoff Record` or `# Output Schema` section defines the payload for each output event type it declares.
+
+An orchestrator discovers the routing graph by: (1) scanning souls for `input_event_types` and `output_event_types` declarations, (2) building a map from event type to handling soul, (3) executing steps in topological order. Step N's `output_event_types` must be a subset of Step N+1's `input_event_types`.
+
 ## What This Is Not
 
 - Not a runtime package.
