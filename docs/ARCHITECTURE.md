@@ -247,6 +247,56 @@ Event type names should be PascalCase, globally unique within the pipeline, and 
 
 An orchestrator discovers the routing graph by: (1) scanning souls for `input_event_types` and `output_event_types` declarations, (2) building a map from event type to handling soul, (3) executing steps in topological order. Step N's `output_event_types` must be a subset of Step N+1's `input_event_types`.
 
+## Typed State Schema
+
+Multi-step agents accumulate state across tool calls. Soulforge souls use `state_keys_written` in frontmatter to name the keys they write. This naming is necessary for auditing but not sufficient for validation — it says what keys exist, not what shape they hold.
+
+The **typed state schema** pattern extends this convention by declaring key types alongside key names. A soul or endpoint declares:
+
+```yaml
+state_schema:
+  research_findings: string[]
+  draft: string
+  fact_check_report: "{ passed: boolean, issues: string[] }"
+  stage_log: "{ stage: string, status: string, error?: string }[]"
+```
+
+This declaration serves three purposes:
+
+1. **Coding agent guidance.** When a coding agent assembles an endpoint that uses this soul, it can validate that tool outputs match declared key types before wiring them up — catching type mismatches at assembly time, not execution time.
+
+2. **Endpoint harness validation.** An endpoint can validate state reads and writes against the schema at runtime, emitting a typed error when a tool writes a value that does not match the declared type. This surfaces contract violations as named errors, not silent data corruption.
+
+3. **Eval coverage signal.** A golden test can assert that every declared state key was written at least once during a successful run. Keys that are declared but never written indicate dead code or a missing tool call.
+
+**Relationship to `state_keys_written`:**
+
+`state_keys_written` remains the minimal declaration — just the names, enough to audit which keys the soul touches. `state_schema` is the extended form for souls that need validation. Not every soul needs it; a simple single-turn agent with no shared state needs neither. Add `state_schema` when:
+
+- Multiple tools read from and write to the same state object.
+- An orchestrator or eval harness needs to validate intermediate state between stages.
+- The soul is used as a component by another soul (the outer soul's tool contract includes the inner state shape).
+
+**Convention:**
+
+```yaml
+# minimal (always enough for auditing)
+state_keys_written:
+  - research_findings
+  - draft
+
+# extended (add when validation is needed)
+state_schema:
+  research_findings: string[]
+  draft: string
+```
+
+State key naming follows the existing convention: `<kind>:<stable-id>` for long-term keys, plain camelCase or snake_case for session-scoped keys. State schema types use TypeScript-compatible type strings. Complex types should reference a named interface in the module's TypeScript source, not embed a full inline definition.
+
+This pattern is drawn from Haystack's `state_schema` agent contract (research: `research/2026-05-28-haystack.md`), where `Agent` components declare typed state keys that tools read from and write to, enabling validation of state access before execution.
+
+---
+
 ## What This Is Not
 
 - Not a runtime package.
