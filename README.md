@@ -121,6 +121,8 @@ The implementation folders are peers. No primitive secretly owns the others.
 | `eval/` | JSONL traces, goldens, scoring, diff, cache | `npm run eval -- run --soul souls/examples/starter-soul.md` |
 | `observability/` | JSONL sink, cost ledger, latency histogram, error grouping | `npm run test -- observability` |
 | `tools/bankr/` | Dry-run-first Bankr adapter with receipts and guardrails | `npm run test -- tools/bankr` |
+| `tools/workflow-runner/` | Deterministic multi-step workflow runtime with checkpoint-based resume | `npm run test -- tools/workflow-runner` |
+| `tools/workflow-validator/` | Build-time validation for WorkflowDefinitions — catches wiring errors before execution | `npm run test -- tools/workflow-validator` |
 | `generator/` | Optional scaffold accelerator and six structure examples | `npm run scaffold:smoke` |
 | `endpoints/` | Endpoint contracts, x402 template, URL inspector examples | `npm run test -- endpoints` |
 
