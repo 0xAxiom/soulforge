@@ -123,6 +123,7 @@ The implementation folders are peers. No primitive secretly owns the others.
 | `tools/bankr/` | Dry-run-first Bankr adapter with receipts and guardrails | `npm run test -- tools/bankr` |
 | `tools/workflow-runner/` | Deterministic multi-step workflow runtime with checkpoint-based resume | `npm run test -- tools/workflow-runner` |
 | `tools/workflow-validator/` | Build-time validation for WorkflowDefinitions — catches wiring errors before execution | `npm run test -- tools/workflow-validator` |
+| `tools/production-evaluator/` | In-production post-response evaluators: extract facts and quality signals from live turns | `npm run test -- tools/production-evaluator` |
 | `generator/` | Optional scaffold accelerator and six structure examples | `npm run scaffold:smoke` |
 | `endpoints/` | Endpoint contracts, x402 template, URL inspector examples | `npm run test -- endpoints` |
 
